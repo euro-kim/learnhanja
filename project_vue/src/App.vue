@@ -1,10 +1,5 @@
 <template>
   <div id="app">
-    <h1 class="heading">
-      <a :href="link" rel="noopener noreferrer">
-        <img alt="Vue logo" src="./assets/logo.png" class="logo"  >
-      </a>
-    </h1>
     <SearchPage />
     <router-view/>
   </div>
