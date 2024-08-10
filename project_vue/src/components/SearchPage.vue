@@ -11,14 +11,14 @@
     </div>
 
     <!-- Search Bar -->
-    <div class="search-div-container">
+    <div class="div-searchbar">
       <input 
         v-model="search" 
         placeholder="Search..." 
-        class="search-input"
+        class="input-search"
         @keyup.enter="performSearch" 
       >
-      <button class="search-button" @click="performSearch">Search</button>
+      <button class="button-search" @click="performSearch">Search</button>
     </div>
 
     <!-- tab -->
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Selection -->
-    <div v-if="selected_item!=null" class="div-container">
+    <div v-if="selected_item !== ''" class="div-container">
       <div>Selected Hanja</div>
        <ul class="ul-single">
            <li
@@ -45,16 +45,15 @@
              <span class="span-word">{{ selected_item.word }}</span>
              <span class="span-meaning-sound">{{ selected_item.meaning_sound }}</span>
            </li>
-           <button @click="clearSelection">Clear Selection</button>
        </ul>
     </div>
 
     <!-- Search Result -->
-    <div v-if="search.length > 0" class="div-container">
+    <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
         <div>Search Result</div>
         <div> 
-          <span v-if="selected_item!=null"> {{selected_item.word}}</span>
-          <span v-if="selected_string!=null"> {{selected_string}} does not exist </span>
+          <span v-if="selected_item !== ''"> {{selected_item.word}}</span>
+          <span v-if="selected_string !== ''"> {{selected_string}} does not exist </span>
         </div>
         <ul v-if=!selected_item class="ul-five">
           <li
@@ -69,38 +68,40 @@
         </ul> 
       </div>
 
-    <div v-if="search.length > 0 && RelatedData!=null" class="div-container">
+    <div v-if="searched_item !== '' && RelatedData !=null" class="div-container">
       <!-- Related Words -->
       <a1>Related Words</a1>
-      <div class="div-container">
-        <ul class="ul-five">
-          <li
-            v-for="element in RelatedData"
-            :key="element.id"
-            @click="showPanel(element)"
-          >
-            <span class="span-word">{{ element.word }}</span>
-            <span class="span-meaning-sound">{{ element.meaning_sound }}</span>
-          </li>
-        </ul>
-      </div>
+      <ul class="ul-five">
+        <li
+          v-for="element in RelatedData"
+          :key="element.id"
+          @click="showPanel(element)"
+        >
+          <span class="span-word">{{ element.word }}</span>
+          <span class="span-meaning-sound">{{ element.meaning_sound }}</span>
+        </li>
+      </ul>
       <!-- Show a message if no results are found -->
       
     </div>
     
     <!-- Popup Panel -->
-    <div v-if="clicked_item" class="popup-panel">
-      <p class="level-div-container">{{clicked_item.lev_read}} {{ clicked_item.lev_write}}</p>
-      <button class="close-btn" @click="closePanel">&times;</button>
-      <div class="component_meaning-div-container">
-        <p class="letter" @click="StringHandler(clicked_item.component_meaning)">{{ clicked_item.component_meaning}}</p>
+    <div v-if="clicked_item" class="div-popup-panel">
+      <p class="div-popup-level">{{clicked_item.lev_read}} {{ clicked_item.lev_write}}</p>
+      <button class="button-close" @click="closePanel">&times;</button>
+      <div class="div-panel-component-meaning">
+        <p class="p-label">부수<br></p>
+        <p class="p-letter" @click="StringHandler(clicked_item.component_meaning)">{{ clicked_item.component_meaning}}</p>
       </div>
-      <div class="component_sound-div-container" >
-        <p class="p-label">성부<br></p>
+      <div class="div-panel-component-sound" >
+        <p class="p-label" v-if="clicked_item.component_sound">성부<br></p>
         <p class="p-letter" @click="StringHandler(clicked_item.component_sound)">{{ clicked_item.component_sound}}</p>
       </div>
-      <div class="word-div-container" @click="SelectClose(clicked_item)">
-        <h1>{{ clicked_item.word }}</h1>
+      <div class="div-panel-component-word">
+        <h1 @click="SelectClose(clicked_item)" class="h1-word">{{ clicked_item.word }}</h1>
+      </div>
+      <div class="div-panel-component-explanation">
+        <h5 class="h5-context">{{clicked_item.form}} <br>{{ clicked_item.explanation }}</h5>
       </div>
       <!--<audio :src="clicked_item.sound" controls></audio> -->
     </div>
@@ -114,9 +115,10 @@ export default {
   data() {
     return {
       search: '',
-      selected_item:null,
-      selected_string:null,
-      clicked_item:null,
+      searched_item: '',
+      selected_item: '',
+      selected_string: '',
+      clicked_item: '',
       activeFilter: '', // Default filter
       filters: [
         { key: 'word', label: 'Word' },
@@ -139,9 +141,10 @@ export default {
       if (this.search.trim() !== '') {
         // Perform the search with the input value
         console.log('Searching for:', this.search);
-        self.selected_item=null;
-        self.selected_string=null;
-        self.clicked_item=null;
+        this.searched_item=this.search
+        this.selected_item = '';
+        this.selected_string = '';
+        this.clicked_item = '';
         // You can replace the above line with your actual search logic
       } else {
         console.log('Search input is empty');
@@ -154,22 +157,17 @@ export default {
       this.clicked_item = input;
     },
     closePanel() {
-      this.clicked_item = null;
+      this.clicked_item = '';
     },
     SelectClose(input){
       this.SelectItem(input);
       this.closePanel();
     },
-    clearSelection() {
-      this.selected_item = null;
-      this.selected_string = null;
-      this.search = ''; // Clear search input if needed
-    },
     setActiveFilter(key) {
       // Check if the filter is already active
       if (this.activeFilter === key) {
         // Remove the active filter if it is already active
-        this.activeFilter = null;
+        this.activeFilter = '';
       } else {
         // Set the filter as active
         this.activeFilter = key;
@@ -177,16 +175,17 @@ export default {
     },
     StringHandler(input){
 
-      if (input != '' && input !=null) {
+      if (input !== '' && input !==null) {
         this.selected_item  = this.allData.find(item => // finds the first element
               item.word.toLowerCase().includes(input)
-            ) || null; //if the item does not exist, 
-        this.clicked_item = this.selected_item || null;
+            ) || ''; //if the item does not exist, 
+        this.searched_item = this.selected_item
+        this.clicked_item = this.selected_item || '';
 
       }
       else {
-        this.clicked_item=null;
-        this.selected_item=null;
+        this.clicked_item = '';
+        this.selected_item = '';
         this.selected_string=input;
       }
     }
@@ -194,7 +193,7 @@ export default {
   computed: {
     ...mapGetters(['allData']),
     filteredData() {
-      const searchTerm = this.search.toLowerCase();
+      const searchTerm = this.searched_item.toLowerCase();
 
       switch (this.activeFilter) {
         case 'word':
@@ -221,7 +220,7 @@ export default {
     },
     RelatedData() {
       const target = this.selected_item
-      if (target!=null && target.component_sound!='') {
+      if (target !== '' && target.component_sound !== '') {
           return this.allData.filter(item =>
             item.component_sound.toLowerCase().includes(target.component_sound)
           );
@@ -267,6 +266,13 @@ img {
   transition: transform 0.3s ease, width 0.3s ease; /* Smooth transition when resizing */
 }
 
+@media (max-width: 768px) {
+  .logo {
+  height: 18vw; /* Responsive height relative to the viewport width */
+  width: auto; /* Maintain aspect ratio */
+  }
+}
+
 /* Styles applied when the logo is folded (e.g., when search input is provided) */
 .folded {
   transform: scale(0.3); /* Scale down the logo to 50% */
@@ -284,14 +290,7 @@ img {
 }
 
 
-.search-div-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px;
-}
-
-.search-input {
+.input-search {
   width: 100%;
   max-width: 600px;
   padding: 10px 20px;
@@ -303,29 +302,18 @@ img {
   transition: all 0.3s ease;
 }
 
-.search-input::placeholder {
+.input-search::placeholder {
   color: #999;
 }
 
-.search-input:focus {
+.input-search:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.search-input:focus::placeholder {
+.input-search:focus::placeholder {
   color: #666;
-}
-
-
-/* <div> */
-.div-container {
-  max-width: 1000px; /* Adjust as needed */
-  margin: 13px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -366,6 +354,7 @@ li:hover {
   display: block;
   color: #666;
 }
+
 /* <button> */
 button {
   margin-top: 10px;
@@ -383,6 +372,17 @@ button {
 button:hover {
   background-color: #3464d4;
   color:#ffffff
+}
+
+.button-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  color: #0056b3;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
 }
 
 .button-filter {
@@ -404,7 +404,7 @@ button:hover {
   background-color: #f0f0f0; /* Example background color on hover */
 }
 
-button.search-button {
+.button-search {
   border-radius: 25px;
   margin-left: 10px; /* Space between input and button */
   font-size: 16px;
@@ -412,19 +412,27 @@ button.search-button {
   margin-bottom: 8px;
 }
 
-button.search-button:hover {
+.button-search:hover {
   background-color: #0056b3;
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
-button.search-button:focus {
+.button-search:focus {
   outline: none;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
 }
 
+/* <div> */
+  .div-container {
+  max-width: 1000px; /* Adjust as needed */
+  margin: 13px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-/* Style for the pop ups*/
-.popup-panel {
+.div-popup-panel {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -438,20 +446,8 @@ button.search-button:focus {
   width: 100%;
   animation: fadeIn 0.3s ease-in-out;
 }
-/* Close button */
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  color: #0056b3;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-}
 
-/* Overlay background */
-.popup-panel::before {
+.div-popup-panel::before {
   content: '';
   position: fixed;
   top: 0;
@@ -462,29 +458,32 @@ button.search-button:focus {
   z-index: -1;
 }
 
-audio {
-  margin-top: 10px;
+@media (max-width: 768px) {
+  .div-popup-panel {
+    max-width: 400px; /* Adjust max-width to be 90% of the viewport width */
+    width: 80%;    /* Allow width to auto adjust within the max-width */
+    height: auto;   /* Allow height to auto adjust based on content */
+  }
 }
 
-.component_meaning-div-container {
+.div-panel-component-meaning {
   position: absolute;
+  font-size: medium;
   top: 30%;
   left: 10%;
-  font-size: medium;
 }
 
-
-.component_sound-div-container {
+.div-panel-component-sound {
   position: absolute;
+  font-size: medium;
   top: 30%;
   left: 80%;
-  font-size: medium;
   width: auto; /* Adjust based on content */
   height: auto; /* Adjust based on content */
   box-sizing: border-box; /* Ensure padding and borders are included in the width and height */
 }
 
-.word-div-container {
+.div-panel-component-word{
   position:relative;
   top: 50%;
   left: 25%;
@@ -492,34 +491,60 @@ audio {
   height: 100%;
   font-size: medium
 }
+
+.div-panel-component-explanation{
+  text-align: left
+}
+
+.div-searchbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+
+/* <p> */
 .p-label{
   font-size: 12px
 }
 .p-letter{
   cursor: pointer;
   margin: auto;
+  border-radius: 3px; /* Adjust the value to control the roundness */
+  font-size: 25px;
   transition: background-color 0.3s, transform 0.3s;
 }
 .p-letter:hover{
   background-color: #f0f0f0;
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05) rotate(-1deg);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
-h1 {
+/* <h1> */
+.h1-word {
   background-color: #ffffff;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 8px; /* Adjust the value to control the roundness */
   transition: background-color 0.3s, transform 0.3s;
   text-align: center;
   cursor: pointer;
+  font-size: 50px;
+  display: inline-block; /* Makes the width match the text size */
 }
 
-h1:hover{
+.h1-word:hover {
   background-color: #f0f0f0;
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05) rotate(-1deg);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
-/* Style for the list */
+.h5-context{
+  font-size: small;
+}
+
+/* <ul> */
 .ul-single {
   list-style-type: none;
   padding: 0;
@@ -563,19 +588,9 @@ h1:hover{
   }
 }
 
-/* Style for the form */
-.form-div-container {
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  width: 150px;
-  margin: 20px auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* <audio> */
+  audio {
+  margin-top: 10px;
 }
 </style>
 
