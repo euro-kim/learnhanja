@@ -1,5 +1,7 @@
 <template>
   <div>
+
+
     <div :class="{'heading': true, 'folded-heading': search}">
       <a :href="link" rel="noopener noreferrer" class="logo-link">
         <img 
@@ -22,7 +24,7 @@
     </div>
 
     <!-- tab -->
-    <div class="tabs">
+    <div>
       <button
         v-for="filter in filters"
         :key="filter.key"
@@ -36,21 +38,115 @@
 
     <!-- Selection -->
     <div v-if="selected_item !== ''" class="div-container">
-      <div>Selected Hanja</div>
-       <ul class="ul-single">
-           <li
-             class="li-single"
-             @click="showPanel(selected_item)"
-           >
-             <span class="span-word">{{ selected_item.한자 }}</span>
-             <span class="span-meaning-sound">{{ selected_item.훈음 }}</span>
-           </li>
-       </ul>
+      <div class="table-container">
+        <!-- 급수 -->
+        <table  class="table-급수">
+          <tbody>
+            <tr>
+              <th>한국어문회급수</th>
+              <td>{{ selected_item["한국어문회 읽기급수"] }} {{ selected_item["한국어문회 쓰기급수"] }}</td>
+            </tr>
+            <tr>
+              <th>중국 통용규범한자표 급수</th>
+              <td v-if="selected_item['통용규범한자표 등재'] === '등재'">{{ selected_item["통용규범한자표 급수"] }}급</td>
+              <td v-else>-</td>
+            </tr>
+            <tr >
+              <th> 일본 상용한자</th>
+              <td v-if="selected_item['상용한자 등재'] === '상용한자'">등재</td>
+              <td v-else-if="selected_item['상용한자 등재'] === '표외한자'">표외한자 등재</td>
+              <td v-else>미등재</td>
+            </tr>
+            <tr>
+              <th>HSK 급수</th>
+              <td v-if="selected_item['HSK 급수'] !== ''">{{ selected_item["HSK 급수"] }}급</td>
+              <td v-else>-</td>
+            </tr>
+            <tr>
+              <th>JLPT 급수</th>
+              <td v-if="selected_item['JLPT 급수'] !== ''">{{ selected_item["JLPT 급수"] }}</td>
+              <td v-else>-</td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- 기본 -->
+         <div class="div-기본">
+          <h1 class="h1-한자">{{ selected_item.한자 }}</h1>
+          <h2 class="h2-훈음">{{ selected_item.훈음 }}</h2>
+         </div>
+          <!--소리-->
+        <table  class="table-소리">
+          <tbody>
+            <tr>
+              <th>한국음</th>
+              <td>{{ selected_item.음}} </td>
+            </tr>
+            <tr>
+              <th>사성음</th>
+              <td>{{ selected_item["중국 사성음"] }}</td>
+            </tr>
+            <tr v-if="selected_item.訓 !== ''">
+              <th>일본훈</th>
+              <td>{{ selected_item.訓 }}</td>
+            </tr>
+            <tr v-if="selected_item['音(カタカナ)'] !== ''">
+              <th>일본음</th>
+              <td>{{ selected_item['音(カタカナ)'] }}</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+      <!-- 모양 정보 -->
+      <div>
+        {{selected_item.육서}} <br>
+          총 {{selected_item.총획}}획 <br>
+          부수: {{selected_item.부수}} <br>
+          <span v-if="selected_item.성부===''">{{selected_item.성부}} <br> </span>
+        설명 {{selected_item.설명}}
+      </div>
+
+      <!-- 예시 -->
+      <div>
+          <!-- Tabs -->
+        <div class="tabs">
+          <button :class="{ active: activeTab === '성어' }" @click="activeTab = '성어'">한자성어</button>
+          <button :class="{ active: activeTab === 'HSK' }" @click="activeTab = 'HSK'">HSK</button>
+          <button :class="{ active: activeTab === 'JLPT' }" @click="activeTab = 'JLPT'">JLPT</button>
+        </div>
+        <!-- <span v-if="selected_item['예'] !== ''">
+          <br>
+          <h3> 한국어 예시 </h3> 
+          <ul>
+            <li v-for="(item, index) in selected_item['예'].split('\n')" :key="index">{{ item }}</li>
+          </ul>
+        </span> -->
+
+        <div v-if="selected_item['성어'] !== '' && activeTab === '성어'">
+          <h3> 한국어문회 성어 </h3>
+          <tr v-for="(row, rowIndex) in selected_item['성어'].split('\n')" :key="rowIndex">
+            <td v-for="(item, colIndex) in parseProverb(row)" :key="colIndex">{{ item }}</td>
+          </tr>
+        </div>
+
+        <div v-if="selected_item['HSK 급수'] !== '' && activeTab === 'HSK' ">
+          <h3>HSK 단어 </h3> 
+          <tr v-for="(row, rowIndex) in selected_item['HSK 단어'].split('\n')" :key="rowIndex">
+            <td v-for="(item, colIndex) in parseHSK(row)" :key="colIndex">{{ item }}</td>
+          </tr>
+        </div>
+        <div v-if="selected_item['JLPT 급수'] !== '' && activeTab === 'JLPT'">
+          <h3>JLPT 단어</h3>
+          <tr v-for="(row, rowIndex) in selected_item['JLPT 단어'].split('\n')" :key="rowIndex">
+          <td v-for="(item, colIndex) in parseJLPT(row)" :key="colIndex">{{ item }}</td>
+          </tr>
+        </div>
+      </div>
+      
     </div>
 
     <!-- Search Result -->
     <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
-        <div>Search Result</div>
+        <div>검색결과</div>
         <div> 
           <span v-if="selected_item !== ''"> {{selected_item.한자}}</span>
           <span v-if="selected_string !== ''"> {{selected_string}} does not exist </span>
@@ -62,7 +158,7 @@
             @click="showPanel(element)"
           >
             <span class="span-level">{{ element["한국어문회 읽기급수"] }} {{element["한국어문회 쓰기급수"]}}</span>
-            <span class="span-word">{{ element.한자 }}</span>
+            <span class="span-word" >{{ element.한자 }}</span>
             <span class="span-meaning-sound">{{ element.훈음 }}</span>
           </li>
         </ul> 
@@ -70,7 +166,7 @@
 
     <div v-if="searched_item !== '' && RelatedData !=null" class="div-container">
       <!-- Related Words -->
-      <a1>Related Words</a1>
+      <a1>관련 한자</a1>
       <ul class="ul-five">
         <li
           v-for="element in RelatedData"
@@ -121,6 +217,7 @@ export default {
       selected_string: '',
       clicked_item: '',
       activeFilter: '', // Default filter
+      activeTab: '성어', // Default active tab
       filters: [
         { key: '한자', label: '한자' },
         { key: '훈음', label: '훈음' },
@@ -137,6 +234,66 @@ export default {
     }
   },
   methods:{
+    parseProverb(input) {
+      // Define the regex pattern for A(B): (C) D
+      // No unnecessary escape characters for parentheses in this case
+      const regex = /^([^(]+)\(([^)]+)\): \(([^)]+)\) (.+)$/;
+
+      // Apply the regex to extract matches
+      const match = input.match(regex);
+
+      // Initialize an empty array to hold the results
+      let items = [];
+
+      // Check if the input matches the pattern
+      if (match) {
+        // Extract items from the match array
+        items = [match[1].trim(), match[2].trim(), match[3].trim(), match[4].trim()];
+      } else {
+        // Handle the case where the input does not match the expected format
+        console.error("Input does not match the expected format.");
+      }
+
+      return items;
+    },
+
+    parseHSK(input) {
+      // Define the regex pattern
+      const regex = /^([^(]+)\(([^)]+)\)\[([^\]]+)\]: \(([^)]+)\) (.+)$/;
+      
+      // Apply the regex to extract matches
+      const match = input.match(regex);
+      
+      // Use 'let' instead of 'const' to allow reassignment
+      let items = [];
+      
+      if (match) {
+        // Extract items from the match array
+        items = [match[1], match[2], match[3], match[4], match[5]];
+      }
+      
+      return items;
+    },
+
+    
+    parseJLPT(input) {
+      // Define the regex pattern
+      const regex = /^([^[]+)\[([^\]]+)\]: \(([^)]+)\) \(([^)]+)\) (.+)$/;
+      
+      // Apply the regex to extract matches
+      const match = input.match(regex);
+      
+      // Use 'let' instead of 'const' to allow reassignment
+      let items = [];
+      
+      if (match) {
+        // Extract items from the match array
+        items = [match[1], match[2], match[3], match[4], match[5]];
+      }
+      
+      return items;
+    },
+
     performSearch() {
       // Trigger your search logic here
       if (this.search.trim() !== '') {
@@ -317,6 +474,133 @@ img {
   color: #666;
 }
 
+.div-기본{
+  width: 20%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.table-container {
+  display: flex; /* Use Flexbox to align tables horizontally */
+  gap: 20px; /* Add space between the tables */
+}
+
+/* Container for the table */
+table {
+  width: 30%;
+  flex:1;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 13px;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden; /* Rounds the corners */
+}
+
+/* Table header styling */
+th {
+  width: 15%;
+  background: linear-gradient(45deg, #1E90FF, #00BFFF); /* Gradient blue */
+  color: white;
+  font-size: 13px;
+  text-align: left;
+  padding: 12px 15px;
+  font-weight: bold;
+}
+
+/* Table body styling */
+td {
+  width: 15%;
+  font-size: 13px;
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd; /* Light border for separation */
+}
+
+/* Alternate row background color */
+tbody tr:nth-child(even) {
+  background-color: #f2f8fc; /* Light blue background for even rows */
+}
+
+/* First column (header) styling */
+th:first-child {
+  border-top-left-radius: 10px; /* Rounded corners */
+}
+
+th:last-child {
+  border-top-right-radius: 10px; /* Rounded corners */
+}
+
+td:first-child {
+  border-left: none; /* Removes the border on the first column */
+}
+
+td:last-child {
+  border-right: none; /* Removes the border on the last column */
+}
+
+/* Last row styling */
+tbody tr:last-child td {
+  border-bottom: none; /* Removes the bottom border for the last row */
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  table, th, td {
+    font-size: 16px;
+  }
+}
+
+/* Responsive design */
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #ccc;
+}
+
+.tabs button {
+  background: none;
+  border: none;
+  padding: 1rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tabs button:hover {
+  color: #007bff;
+}
+
+.tabs button.active {
+  color: #007bff;
+  border-bottom: 3px solid #007bff;
+}
+
+h2, h3 {
+  margin: 0.5rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+table tr:hover {
+  background-color: #f1f1f1;
+}
 
 /* <li> */
 li {
@@ -333,6 +617,7 @@ li:hover {
   background-color: #f0f0f0;
   transform: translateY(-2px);
 }
+
 .li-single:hover{
   transform: translateY(0px);
 }
@@ -541,6 +826,19 @@ button:hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
+.h1-한자{
+  font-size: 70px;
+  transition: background-color 0.3s, transform 0.3s;
+  display: inline-block; /* Makes the width match the text size */
+}
+
+.h1-한자:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px) scale(1.05) rotate(-1deg);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
 .h5-context{
   font-size: small;
 }
@@ -551,8 +849,12 @@ button:hover {
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(1, 1fr); /* 5 columns */
+  grid-template-columns: repeat(5, 1fr); 
   gap: 10px; /* Space between grid items */
+}
+
+.ul-single li {
+  grid-column: 3 / 4; /* Place item in the 3rd column */
 }
 
 .ul-five {
@@ -593,6 +895,49 @@ button:hover {
   audio {
   margin-top: 10px;
 }
+
+.card-container {
+  perspective: 1000px; /* Gives the card depth from the viewer's perspective */
+}
+
+.card {
+  width: 300px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d; /* Ensures child elements are rendered in 3D space */
+  transition: transform 0.6s; /* Duration of the flip animation */
+}
+
+.card:hover {
+  transform: rotateY(180deg); /* Flip the card on hover */
+}
+
+.card-front,
+.card-back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden; /* Hides the back side of the card when flipped */
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-front {
+  background-color: #007bff; /* Blue background for the front */
+  color: white;
+}
+
+.card-back {
+  background-color: #f1f1f1; /* Light gray background for the back */
+  color: #333;
+  transform: rotateY(180deg); /* Positions the back side initially */
+}
+
 </style>
 
 
