@@ -42,8 +42,8 @@
              class="li-single"
              @click="showPanel(selected_item)"
            >
-             <span class="span-word">{{ selected_item.word }}</span>
-             <span class="span-meaning-sound">{{ selected_item.meaning_sound }}</span>
+             <span class="span-word">{{ selected_item.한자 }}</span>
+             <span class="span-meaning-sound">{{ selected_item.훈음 }}</span>
            </li>
        </ul>
     </div>
@@ -52,7 +52,7 @@
     <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
         <div>Search Result</div>
         <div> 
-          <span v-if="selected_item !== ''"> {{selected_item.word}}</span>
+          <span v-if="selected_item !== ''"> {{selected_item.한자}}</span>
           <span v-if="selected_string !== ''"> {{selected_string}} does not exist </span>
         </div>
         <ul v-if=!selected_item class="ul-five">
@@ -61,9 +61,9 @@
             :key="element.id"
             @click="showPanel(element)"
           >
-            <span class="span-level">{{ element.lev_read }} {{element.lev_write}}</span>
-            <span class="span-word">{{ element.word }}</span>
-            <span class="span-meaning-sound">{{ element.meaning_sound }}</span>
+            <span class="span-level">{{ element["한국어문회 읽기급수"] }} {{element["한국어문회 쓰기급수"]}}</span>
+            <span class="span-word">{{ element.한자 }}</span>
+            <span class="span-meaning-sound">{{ element.훈음 }}</span>
           </li>
         </ul> 
       </div>
@@ -74,11 +74,12 @@
       <ul class="ul-five">
         <li
           v-for="element in RelatedData"
-          :key="element.id"
+          :key="element.한자"
           @click="showPanel(element)"
         >
-          <span class="span-word">{{ element.word }}</span>
-          <span class="span-meaning-sound">{{ element.meaning_sound }}</span>
+          <span class="span-level">{{ element["한국어문회 읽기급수"] }} {{element["한국어문회 쓰기급수"]}}</span>
+          <span class="span-word">{{ element.한자 }}</span>
+          <span class="span-meaning-sound">{{ element.훈음}}</span>
         </li>
       </ul>
       <!-- Show a message if no results are found -->
@@ -87,21 +88,21 @@
     
     <!-- Popup Panel -->
     <div v-if="clicked_item" class="div-popup-panel">
-      <p class="div-popup-level">{{clicked_item.lev_read}} {{ clicked_item.lev_write}}</p>
+      <p class="div-popup-level">{{clicked_item["한국어문회 읽기급수"]}} {{clicked_item["한국어문회 쓰기급수"]}}</p>
       <button class="button-close" @click="closePanel">&times;</button>
       <div class="div-panel-component-meaning">
         <p class="p-label">부수<br></p>
-        <p class="p-letter" @click="StringHandler(clicked_item.component_meaning)">{{ clicked_item.component_meaning}}</p>
+        <p class="p-letter" @click="StringHandler(clicked_item.부수)">{{ clicked_item.부수}}</p>
       </div>
       <div class="div-panel-component-sound" >
-        <p class="p-label" v-if="clicked_item.component_sound">성부<br></p>
-        <p class="p-letter" @click="StringHandler(clicked_item.component_sound)">{{ clicked_item.component_sound}}</p>
+        <p class="p-label" v-if="clicked_item.성부">성부<br></p>
+        <p class="p-letter" @click="StringHandler(clicked_item.성부)">{{ clicked_item.성부}}</p>
       </div>
       <div class="div-panel-component-word">
-        <h1 @click="SelectClose(clicked_item)" class="h1-word">{{ clicked_item.word }}</h1>
+        <h1 @click="SelectClose(clicked_item)" class="h1-word">{{ clicked_item.한자 }}</h1>
       </div>
       <div class="div-panel-component-explanation">
-        <h5 class="h5-context">{{clicked_item.form}} <br>{{ clicked_item.explanation }}</h5>
+        <h5 class="h5-context">{{clicked_item.육서}} <br>{{ clicked_item.설명}}</h5>
       </div>
       <!--<audio :src="clicked_item.sound" controls></audio> -->
     </div>
@@ -121,17 +122,17 @@ export default {
       clicked_item: '',
       activeFilter: '', // Default filter
       filters: [
-        { key: 'word', label: 'Word' },
-        { key: 'meaning', label: 'Meaning' },
-        { key: 'sound', label: 'Sound' },
-        { key: 'origin', label: 'Origin' }
+        { key: '한자', label: '한자' },
+        { key: '훈음', label: '훈음' },
+        { key: '음', label: '음' },
+        { key: '성부', label: '성부' }
       ]
     };
   },
   watch: {
     search(newVal) {
       if (newVal.length === 0) {
-        this.clicked_item = null;
+        this.clicked_item = '';
       }
     }
   },
@@ -177,7 +178,7 @@ export default {
 
       if (input !== '' && input !==null) {
         this.selected_item  = this.allData.find(item => // finds the first element
-              item.word.toLowerCase().includes(input)
+              item.한자.toLowerCase().includes(input)
             ) || ''; //if the item does not exist, 
         this.searched_item = this.selected_item
         this.clicked_item = this.selected_item || '';
@@ -196,33 +197,33 @@ export default {
       const searchTerm = this.searched_item.toLowerCase();
 
       switch (this.activeFilter) {
-        case 'word':
+        case '한자':
           return this.allData.filter(item =>
-            item.word.toLowerCase().includes(searchTerm)
+            item.한자.toLowerCase().includes(searchTerm)
           ) || null;
-        case 'meaning':
+        case '훈음':
           return this.allData.filter(item =>
-            item.meaning.toLowerCase().includes(searchTerm)
+            item.훈음.toLowerCase().includes(searchTerm)
           ) || null;
-        case 'sound':
+        case '음':
           return this.allData.filter(item =>
-            item.sound.toLowerCase().includes(searchTerm)
+            item.음.toLowerCase().includes(searchTerm)
           ) || null;
-        case 'origin':
+        case '성부':
           return this.allData.filter(item =>
-            item.origin.toLowerCase().includes(searchTerm)
+            item.성부.toLowerCase().includes(searchTerm)
           ) || null;
         default:
           return this.allData.filter(item =>
-          item.word.toLowerCase().includes(searchTerm)||item.sound.toLowerCase().includes(searchTerm)||item.meaning.toLowerCase().includes(searchTerm)
+          item.한자.toLowerCase().includes(searchTerm)||item.음.toLowerCase().includes(searchTerm)||item.훈음.toLowerCase().includes(searchTerm)
         )  
       }
     },
     RelatedData() {
       const target = this.selected_item
-      if (target !== '' && target.component_sound !== '') {
+      if (target !== '' && target.성부 !== '' ) {
           return this.allData.filter(item =>
-            item.component_sound.toLowerCase().includes(target.component_sound)
+            item.성부.toLowerCase().includes(target.성부)
           );
         }
       else {
