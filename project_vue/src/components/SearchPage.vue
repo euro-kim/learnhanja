@@ -6,7 +6,7 @@
       <a :href="link" rel="noopener noreferrer" class="logo-link">
         <img 
           alt="Vue logo" 
-          src="/assets/logo.png" 
+          src="../assets/logo.png" 
           :class="{'logo': true, 'folded': search}" 
         >
       </a>
