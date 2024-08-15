@@ -6,7 +6,7 @@
       <a :href="link" rel="noopener noreferrer" class="logo-link">
         <img 
           alt="LearnHanja" 
-          img :src="require('@/assets/logo.png')"
+          img src="/logo.png"
           :class="{'logo': true, 'folded': search}" 
         >
       </a>
