@@ -6,7 +6,7 @@
       <a :href="link" rel="noopener noreferrer" class="logo-link">
         <img 
           alt="Vue logo" 
-          src="../assets/logo.png" 
+          src="/assets/logo.png" 
           :class="{'logo': true, 'folded': search}" 
         >
       </a>
@@ -40,7 +40,7 @@
     <div v-if="selected_item !== ''" class="div-container">
       <div class="table-container">
         <!-- 급수 -->
-        <table  class="table-급수">
+        <table  class="info-table">
           <tbody>
             <tr>
               <th>한국어문회급수</th>
@@ -70,12 +70,23 @@
           </tbody>
         </table>
         <!-- 기본 -->
-         <div class="div-기본">
-          <h1 class="h1-한자">{{ selected_item.한자 }}</h1>
-          <h2 class="h2-훈음">{{ selected_item.훈음 }}</h2>
-         </div>
+        <div class="card-container" @click="toggleFlip">
+          <div :class="['card', { flipped: isFlipped }]">
+            <div class="card-front">
+              <h1 class="h1-한자">{{ selected_item.한자 }}</h1>
+              <h2 class="h2-훈음">{{ selected_item.훈음 }}</h2>
+            </div>
+                  <!-- 모양 정보 -->
+            <div class="card-back">
+              {{selected_item.육서}} <br>
+                총 {{selected_item.총획}}획 <br>
+                부수: {{selected_item.부수}} <br>
+                <span v-if="selected_item.성부===''">{{selected_item.성부}} <br> </span>
+            </div>
+          </div>
+        </div>
           <!--소리-->
-        <table  class="table-소리">
+        <table  class="info-table">
           <tbody>
             <tr>
               <th>한국음</th>
@@ -96,14 +107,12 @@
           </tbody>
         </table>
     </div>
-      <!-- 모양 정보 -->
-      <div>
-        {{selected_item.육서}} <br>
-          총 {{selected_item.총획}}획 <br>
-          부수: {{selected_item.부수}} <br>
-          <span v-if="selected_item.성부===''">{{selected_item.성부}} <br> </span>
-        설명 {{selected_item.설명}}
-      </div>
+    <div class="exposition">
+      <br>
+      제자원리(디지털 e-hanja)
+      <br>
+      {{selected_item.설명}}
+    </div>
 
       <!-- 예시 -->
       <div>
@@ -123,22 +132,35 @@
 
         <div v-if="selected_item['성어'] !== '' && activeTab === '성어'">
           <h3> 한국어문회 성어 </h3>
-          <tr v-for="(row, rowIndex) in selected_item['성어'].split('\n')" :key="rowIndex">
-            <td v-for="(item, colIndex) in parseProverb(row)" :key="colIndex">{{ item }}</td>
-          </tr>
+          <table class="custom-table">
+            <tbody>
+              <tr v-for="(row, rowIndex) in selected_item['성어'].split('\n')" :key="rowIndex">
+                <td v-for="(item, colIndex) in parseProverb(row)" :key="colIndex">{{ item }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div v-if="selected_item['HSK 급수'] !== '' && activeTab === 'HSK' ">
           <h3>HSK 단어 </h3> 
-          <tr v-for="(row, rowIndex) in selected_item['HSK 단어'].split('\n')" :key="rowIndex">
-            <td v-for="(item, colIndex) in parseHSK(row)" :key="colIndex">{{ item }}</td>
-          </tr>
+          <table class="custom-table">
+            <tbody>
+              <tr v-for="(row, rowIndex) in selected_item['HSK 단어'].split('\n')" :key="rowIndex">
+                <td v-for="(item, colIndex) in parseHSK(row)" :key="colIndex">{{ item }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+        
         <div v-if="selected_item['JLPT 급수'] !== '' && activeTab === 'JLPT'">
           <h3>JLPT 단어</h3>
-          <tr v-for="(row, rowIndex) in selected_item['JLPT 단어'].split('\n')" :key="rowIndex">
-          <td v-for="(item, colIndex) in parseJLPT(row)" :key="colIndex">{{ item }}</td>
-          </tr>
+          <table class="custom-table">
+            <tbody>
+              <tr v-for="(row, rowIndex) in selected_item['JLPT 단어'].split('\n')" :key="rowIndex">
+                <td v-for="(item, colIndex) in parseJLPT(row)" :key="colIndex">{{ item }}</td>
+              </tr>
+            </tbody>
+          </table>  
         </div>
       </div>
       
@@ -218,6 +240,8 @@ export default {
       clicked_item: '',
       activeFilter: '', // Default filter
       activeTab: '성어', // Default active tab
+      isFlipped: false,
+      link: 'http://learnhanja.com',
       filters: [
         { key: '한자', label: '한자' },
         { key: '훈음', label: '훈음' },
@@ -234,6 +258,9 @@ export default {
     }
   },
   methods:{
+    toggleFlip() {
+      this.isFlipped = !this.isFlipped;
+    },
     parseProverb(input) {
       // Define the regex pattern for A(B): (C) D
       // No unnecessary escape characters for parentheses in this case
@@ -480,76 +507,6 @@ img {
   border-radius: 10px;
 }
 
-.table-container {
-  display: flex; /* Use Flexbox to align tables horizontally */
-  gap: 20px; /* Add space between the tables */
-}
-
-/* Container for the table */
-table {
-  width: 30%;
-  flex:1;
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 13px;
-  font-family: 'Arial', sans-serif;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden; /* Rounds the corners */
-}
-
-/* Table header styling */
-th {
-  width: 15%;
-  background: linear-gradient(45deg, #1E90FF, #00BFFF); /* Gradient blue */
-  color: white;
-  font-size: 13px;
-  text-align: left;
-  padding: 12px 15px;
-  font-weight: bold;
-}
-
-/* Table body styling */
-td {
-  width: 15%;
-  font-size: 13px;
-  padding: 12px 15px;
-  border-bottom: 1px solid #ddd; /* Light border for separation */
-}
-
-/* Alternate row background color */
-tbody tr:nth-child(even) {
-  background-color: #f2f8fc; /* Light blue background for even rows */
-}
-
-/* First column (header) styling */
-th:first-child {
-  border-top-left-radius: 10px; /* Rounded corners */
-}
-
-th:last-child {
-  border-top-right-radius: 10px; /* Rounded corners */
-}
-
-td:first-child {
-  border-left: none; /* Removes the border on the first column */
-}
-
-td:last-child {
-  border-right: none; /* Removes the border on the last column */
-}
-
-/* Last row styling */
-tbody tr:last-child td {
-  border-bottom: none; /* Removes the bottom border for the last row */
-}
-
-/* Responsive design */
-@media (max-width: 600px) {
-  table, th, td {
-    font-size: 16px;
-  }
-}
 
 /* Responsive design */
 .tabs {
@@ -583,24 +540,97 @@ h2, h3 {
   margin: 0.5rem 0;
 }
 
-table {
+.table-container {
+  display: flex; /* Use Flexbox to align tables horizontally */
+  gap: 20px; /* Add space between the tables */
+}
+
+/* Container for the table */
+.info-table {
+  width: 30%;
+  flex:1;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 13px;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden; /* Rounds the corners */
+}
+
+/* Table header styling */
+.info-table th {
+  width: 15%;
+  background: linear-gradient(45deg, #1E90FF, #00BFFF); /* Gradient blue */
+  color: white;
+  font-size: 13px;
+  text-align: left;
+  padding: 12px 15px;
+  font-weight: bold;
+}
+
+/* Table body styling */
+.info-table td {
+  width: 15%;
+  font-size: 13px;
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd; /* Light border for separation */
+}
+
+/* Alternate row background color */
+.info-table tbody tr:nth-child(even) {
+  background-color: #f2f8fc; /* Light blue background for even rows */
+}
+
+/* First column (header) styling */
+.info-table th:first-child {
+  border-top-left-radius: 10px; /* Rounded corners */
+}
+
+.info-table th:last-child {
+  border-top-right-radius: 10px; /* Rounded corners */
+}
+
+.info-table td:first-child {
+  border-left: none; /* Removes the border on the first column */
+}
+
+.info-table td:last-child {
+  border-right: none; /* Removes the border on the last column */
+}
+
+/* Last row styling */
+.info-table tbody tr:last-child td {
+  border-bottom: none; /* Removes the bottom border for the last row */
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  table, th, td {
+    font-size: 16px;
+  }
+}
+
+/* Styles for the new table */
+.custom-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
 }
 
-table td {
+.custom-table td {
   border: 1px solid #ddd;
   padding: 8px;
 }
 
-table tr:nth-child(even) {
+.custom-table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-table tr:hover {
+.custom-table tr:hover {
   background-color: #f1f1f1;
 }
+
 
 /* <li> */
 li {
@@ -789,6 +819,12 @@ button:hover {
   margin: 20px;
 }
 
+.exposition{
+  text-align: left;
+  font-size: small;
+
+}
+
 /* <p> */
 .p-label{
   font-size: 12px
@@ -895,21 +931,29 @@ button:hover {
   audio {
   margin-top: 10px;
 }
+.card-container {
+  perspective: 1000px;
+  cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
+}
 
 .card-container {
-  perspective: 1000px; /* Gives the card depth from the viewer's perspective */
+  perspective: 1000px;
+  cursor: pointer;
+  width: 20%; /* Keeping the card width as per your preference */
 }
 
 .card {
-  width: 300px;
-  height: 200px;
+  width: 100%; /* Ensures the card takes up the full width of the container */
+  height: 100%; /* Adjust the height as needed */
   position: relative;
-  transform-style: preserve-3d; /* Ensures child elements are rendered in 3D space */
-  transition: transform 0.6s; /* Duration of the flip animation */
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Your box-shadow style */
+  border-radius: 10px; /* Your border-radius style */
 }
 
-.card:hover {
-  transform: rotateY(180deg); /* Flip the card on hover */
+.card.flipped {
+  transform: rotateY(180deg);
 }
 
 .card-front,
@@ -917,25 +961,20 @@ button:hover {
   width: 100%;
   height: 100%;
   position: absolute;
-  backface-visibility: hidden; /* Hides the back side of the card when flipped */
+  backface-visibility: hidden;
   top: 0;
   left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.card-front {
-  background-color: #007bff; /* Blue background for the front */
-  color: white;
+  flex-direction: column;
+  border-radius: 10px; /* Ensures the rounded corners are consistent */
 }
 
 .card-back {
-  background-color: #f1f1f1; /* Light gray background for the back */
+  background-color: #f1f1f1;
   color: #333;
-  transform: rotateY(180deg); /* Positions the back side initially */
+  transform: rotateY(180deg);
 }
 
 </style>
