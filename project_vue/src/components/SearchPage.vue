@@ -5,8 +5,8 @@
     <div :class="{'heading': true, 'folded-heading': search}">
       <a :href="link" rel="noopener noreferrer" class="logo-link">
         <img 
-          alt="Vue logo" 
-          src="../assets/logo.png" 
+          alt="LearnHanja" 
+          img :src="require('@/assets/logo.png')"
           :class="{'logo': true, 'folded': search}" 
         >
       </a>
