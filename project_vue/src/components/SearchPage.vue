@@ -2,38 +2,55 @@
   <div>
 
 
-    <div :class="{'heading': true, 'folded-heading': search}">
+    <div :class="{'heading': true, 'folded-heading': user_input}">
       <a :href="link" rel="noopener noreferrer" class="logo-link">
         <img 
           alt="LearnHanja" 
           img src="/logo.png"
-          :class="{'logo': true, 'folded': search}" 
+          :class="{'logo': true, 'folded': user_input}" 
         >
       </a>
     </div>
 
-    <!-- Search Bar -->
-    <div class="div-searchbar">
-      <input 
-        v-model="search" 
-        placeholder="Search..." 
-        class="input-search"
-        @keyup.enter="performSearch" 
-      >
-      <button class="button-search" @click="performSearch">Search</button>
+    <div class="div-search-wrapper">
+      <!-- Search By -->
+      <div class="div-search-by">
+        <button
+          v-for="filter in SearchByOptions"
+          :key="filter.key"
+          class="button-filter"
+          :class="{ active: SearchBy === filter.key }"
+          @click="setSearchBy(filter.key)"
+        >
+          {{ filter.label }}
+        </button>
+        <span class="span-filter-info">로 검색하기</span>
+      </div>
+      <!-- Search Bar -->
+      <div class="div-search-bar">
+        <input 
+          v-model="user_input" 
+          placeholder="Search..." 
+          class="input-search"
+          @keyup.enter="performSearch" 
+        >
+        <button class="button-search" @click="performSearch">Search</button>
+      </div>
     </div>
 
-    <!-- tab -->
-    <div>
-      <button
-        v-for="filter in filters"
-        :key="filter.key"
-        class="button-filter"
-        :class="{ active: activeFilter === filter.key }"
-        @click="setActiveFilter(filter.key)"
-      >
-        {{ filter.label }}
-      </button>
+    <!-- HSK Dropdown -->
+    <div v-if="hskclicked == false" class="hsk-dropdown">
+        <select v-model="selectedHSKLevel" @change="setHSKFilter">
+          <option disabled value="">
+            Select HSK Level
+          </option>
+          <option v-for="level in hskLevels" 
+            :key="level" 
+            :value="level"
+            > 
+            HSK Level {{ level }}
+          </option>
+        </select>
     </div>
 
     <!-- Selection -->
@@ -44,27 +61,26 @@
           <tbody>
             <tr>
               <th>한국어문회급수</th>
-              <td>{{ selected_item["한국어문회 읽기급수"] }} {{ selected_item["한국어문회 쓰기급수"] }}</td>
+              <td>{{ selected_item["읽기"] }} {{ selected_item["쓰기"] }}</td>
             </tr>
             <tr>
               <th>중국 통용규범한자표 급수</th>
-              <td v-if="selected_item['통용규범한자표 등재'] === '등재'">{{ selected_item["통용규범한자표 급수"] }}급</td>
+              <td v-if="selected_item['通用規範'] !==0">{{ selected_item["级"] }}级</td>
               <td v-else>-</td>
             </tr>
             <tr >
               <th> 일본 상용한자</th>
-              <td v-if="selected_item['상용한자 등재'] === '상용한자'">등재</td>
-              <td v-else-if="selected_item['상용한자 등재'] === '표외한자'">표외한자 등재</td>
+              <td v-if="selected_item['常用'] !== 0">등재</td>
               <td v-else>미등재</td>
             </tr>
             <tr>
-              <th>HSK 급수</th>
-              <td v-if="selected_item['HSK 급수'] !== ''">{{ selected_item["HSK 급수"] }}급</td>
+              <th>일본 漢字検定</th>
+              <td v-if="selected_item['漢字検定'] !== ''">{{ selected_item["漢字検定"] }}</td>
               <td v-else>-</td>
             </tr>
             <tr>
-              <th>JLPT 급수</th>
-              <td v-if="selected_item['JLPT 급수'] !== ''">{{ selected_item["JLPT 급수"] }}</td>
+              <th>JIS 수준</th>
+              <td v-if="selected_item['JIS水準'] !== ''">{{ selected_item["JIS水準"] }}</td>
               <td v-else>-</td>
             </tr>
           </tbody>
@@ -73,15 +89,15 @@
         <div class="card-container" @click="toggleFlip">
           <div :class="['card', { flipped: isFlipped }]">
             <div class="card-front">
-              <h1 class="h1-한자">{{ selected_item.한자 }}</h1>
-              <h2 class="h2-훈음">{{ selected_item.훈음 }}</h2>
+              <h1 class="h1-한자">{{ selected_item.kr }}</h1>
+              <h2 class="h2-훈음">{{ 훈음(selected_item).join('\n') }}</h2>
             </div>
                   <!-- 모양 정보 -->
             <div class="card-back">
               {{selected_item.육서}} <br>
-                총 {{selected_item.총획}}획 <br>
-                부수: {{selected_item.부수}} <br>
-                <span v-if="selected_item.성부===''">{{selected_item.성부}} <br> </span>
+                총 {{selected_item.畫數}}획 <br>
+                부수: {{selected_item.部首}} <br>
+                <span v-if="selected_item.聲部===''">{{selected_item.聲部}} <br> </span>
             </div>
           </div>
         </div>
@@ -90,28 +106,28 @@
           <tbody>
             <tr>
               <th>한국음</th>
-              <td>{{ selected_item.음}} </td>
+              <td>{{ (selected_item.음).join('\n')}} </td>
             </tr>
             <tr>
               <th>사성음</th>
-              <td>{{ selected_item["중국 사성음"] }}</td>
+              <td>{{ pinyin(selected_item).join('\n') }}</td>
             </tr>
-            <tr v-if="selected_item.訓 !== ''">
+            <tr>
               <th>일본훈</th>
-              <td>{{ selected_item.訓 }}</td>
+              <td>{{ (selected_item["訓読み"]).join('\n') }}</td>
             </tr>
-            <tr v-if="selected_item['音(カタカナ)'] !== ''">
+            <tr>
               <th>일본음</th>
-              <td>{{ selected_item['音(カタカナ)'] }}</td>
+              <td>{{ (selected_item['音読み']).join('\n') }}</td>
             </tr>
           </tbody>
         </table>
     </div>
     <div class="exposition">
       <br>
-      제자원리(디지털 e-hanja)
+      English Meaning
       <br>
-      {{selected_item.설명}}
+      {{selected_item.meaning}}
     </div>
 
       <!-- 예시 -->
@@ -130,7 +146,7 @@
           </ul>
         </span> -->
 
-        <div v-if="selected_item['성어'] !== '' && activeTab === '성어'">
+        <!-- <div v-if="selected_item['성어'] !== '' && activeTab === '성어'">
           <h3> 한국어문회 성어 </h3>
           <table class="custom-table">
             <tbody>
@@ -161,7 +177,7 @@
               </tr>
             </tbody>
           </table>  
-        </div>
+        </div> -->
       </div>
       
     </div>
@@ -170,18 +186,18 @@
     <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
         <div>검색결과</div>
         <div> 
-          <span v-if="selected_item !== ''"> {{selected_item.한자}}</span>
+          <span v-if="selected_item !== ''"> {{selected_item.kr}}</span>
           <span v-if="selected_string !== ''"> {{selected_string}} does not exist </span>
         </div>
         <ul v-if=!selected_item class="ul-five">
           <li
-            v-for="element in filteredData"
+            v-for="element in SearchResult"
             :key="element.id"
             @click="showPanel(element)"
           >
-            <span class="span-level">{{ element["한국어문회 읽기급수"] }} {{element["한국어문회 쓰기급수"]}}</span>
-            <span class="span-word" >{{ element.한자 }}</span>
-            <span class="span-meaning-sound">{{ element.훈음 }}</span>
+            <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
+            <span class="span-word" >{{ element.kr }}</span>
+            <span class="span-meaning-sound">{{ 훈음(element).join('\n') }}</span>
           </li>
         </ul> 
       </div>
@@ -195,9 +211,9 @@
           :key="element.한자"
           @click="showPanel(element)"
         >
-          <span class="span-level">{{ element["한국어문회 읽기급수"] }} {{element["한국어문회 쓰기급수"]}}</span>
-          <span class="span-word">{{ element.한자 }}</span>
-          <span class="span-meaning-sound">{{ element.훈음}}</span>
+          <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
+          <span class="span-word">{{ element.kr }}</span>
+          <span class="span-meaning-sound">{{ 훈음(element).join('\n')}}</span>
         </li>
       </ul>
       <!-- Show a message if no results are found -->
@@ -206,21 +222,18 @@
     
     <!-- Popup Panel -->
     <div v-if="clicked_item" class="div-popup-panel">
-      <p class="div-popup-level">{{clicked_item["한국어문회 읽기급수"]}} {{clicked_item["한국어문회 쓰기급수"]}}</p>
+      <p class="div-popup-level">{{clicked_item["읽기"]}} {{clicked_item["쓰기"]}}</p>
       <button class="button-close" @click="closePanel">&times;</button>
       <div class="div-panel-component-meaning">
         <p class="p-label">부수<br></p>
-        <p class="p-letter" @click="StringHandler(clicked_item.부수)">{{ clicked_item.부수}}</p>
+        <p class="p-letter" @click="StringHandler(clicked_item.部首)">{{ clicked_item.部首}}</p>
       </div>
       <div class="div-panel-component-sound" >
-        <p class="p-label" v-if="clicked_item.성부">성부<br></p>
-        <p class="p-letter" @click="StringHandler(clicked_item.성부)">{{ clicked_item.성부}}</p>
+        <p class="p-label" v-if="clicked_item.聲部">성부<br></p>
+        <p class="p-letter" @click="StringHandler(clicked_item.聲部)">{{ clicked_item.聲部}}</p>
       </div>
       <div class="div-panel-component-word">
-        <h1 @click="SelectClose(clicked_item)" class="h1-word">{{ clicked_item.한자 }}</h1>
-      </div>
-      <div class="div-panel-component-explanation">
-        <h5 class="h5-context">{{clicked_item.육서}} <br>{{ clicked_item.설명}}</h5>
+        <h1 @click="SelectClose(clicked_item)" class="h1-word">{{ clicked_item.kr }}</h1>
       </div>
       <!--<audio :src="clicked_item.sound" controls></audio> -->
     </div>
@@ -228,26 +241,34 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import jsonData from '../data/hanja.json';
 
 export default {
   data() {
     return {
-      search: '',
-      searched_item: '',
-      selected_item: '',
-      selected_string: '',
-      clicked_item: '',
-      activeFilter: '', // Default filter
-      activeTab: '성어', // Default active tab
-      isFlipped: false,
       link: 'http://learnhanja.com',
-      filters: [
+      //Search 
+      allData: jsonData,
+      user_input: '', //user input
+      searched_item: '',
+      SearchBy: '', // Search with 
+      SearchByOptions: [
         { key: '한자', label: '한자' },
         { key: '훈음', label: '훈음' },
         { key: '음', label: '음' },
-        { key: '성부', label: '성부' }
-      ]
+        { key: '성부', label: '성부' },
+      ],
+      //HSK filter
+      hskclicked: false,
+      hskLevels: [1, 2, 3, 4, 5, 6], // HSK levels
+      selectedHSKLevel: '', // HSK level selected
+      //choose words
+      selected_item: '',
+      selected_string: '',
+      clicked_item: '',
+      //individual words
+      activeTab: '성어', // Default active tab
+      isFlipped: false,
     };
   },
   watch: {
@@ -284,49 +305,33 @@ export default {
       return items;
     },
 
-    parseHSK(input) {
-      // Define the regex pattern
-      const regex = /^([^(]+)\(([^)]+)\)\[([^\]]+)\]: \(([^)]+)\) (.+)$/;
+    훈음(input) {
+      const 훈 = input.훈;
+      const 음 = input.음;
+      const result = [];
       
-      // Apply the regex to extract matches
-      const match = input.match(regex);
-      
-      // Use 'let' instead of 'const' to allow reassignment
-      let items = [];
-      
-      if (match) {
-        // Extract items from the match array
-        items = [match[1], match[2], match[3], match[4], match[5]];
+      for (let i = 0; i < 훈.length; i++) {
+        result.push(`${훈[i]} ${음[i]}`);
       }
-      
-      return items;
+      return result;
     },
-
-    
-    parseJLPT(input) {
-      // Define the regex pattern
-      const regex = /^([^[]+)\[([^\]]+)\]: \(([^)]+)\) \(([^)]+)\) (.+)$/;
+    pinyin(input) {
+      const 声 = input.声;
+      const 韵 = input.韵;
+      const tones = input.tones;
+      const result = [];
       
-      // Apply the regex to extract matches
-      const match = input.match(regex);
-      
-      // Use 'let' instead of 'const' to allow reassignment
-      let items = [];
-      
-      if (match) {
-        // Extract items from the match array
-        items = [match[1], match[2], match[3], match[4], match[5]];
+      for (let i = 0; i < 声.length; i++) {
+        result.push(`${声[i]}${韵[i]}${tones[i]}`);
       }
-      
-      return items;
+      return result;
     },
-
     performSearch() {
       // Trigger your search logic here
-      if (this.search.trim() !== '') {
+      if (this.user_input.trim() !== '') {
         // Perform the search with the input value
-        console.log('Searching for:', this.search);
-        this.searched_item=this.search
+        console.log('Searching for:', this.user_input);
+        this.searched_item=this.user_input
         this.selected_item = '';
         this.selected_string = '';
         this.clicked_item = '';
@@ -348,15 +353,18 @@ export default {
       this.SelectItem(input);
       this.closePanel();
     },
-    setActiveFilter(key) {
+    setSearchBy(key) {
       // Check if the filter is already active
-      if (this.activeFilter === key) {
+      if (this.SearchBy === key) {
         // Remove the active filter if it is already active
-        this.activeFilter = '';
+        this.SearchBy = '';
       } else {
         // Set the filter as active
-        this.activeFilter = key;
+        this.SearchBy = key;
       }
+    },
+    setHSKFilter() {
+      this.SearchBy = `HSK Level ${this.selectedHSKLevel}`;
     },
     StringHandler(input){
 
@@ -376,38 +384,36 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['allData']),
-    filteredData() {
+    SearchResult() {
       const searchTerm = this.searched_item.toLowerCase();
 
-      switch (this.activeFilter) {
-        case '한자':
-          return this.allData.filter(item =>
-            item.한자.toLowerCase().includes(searchTerm)
-          ) || null;
-        case '훈음':
-          return this.allData.filter(item =>
-            item.훈음.toLowerCase().includes(searchTerm)
-          ) || null;
-        case '음':
-          return this.allData.filter(item =>
-            item.음.toLowerCase().includes(searchTerm)
-          ) || null;
-        case '성부':
-          return this.allData.filter(item =>
-            item.성부.toLowerCase().includes(searchTerm)
-          ) || null;
+      switch (this.SearchBy) {
+        // case '한자':
+        //   return this.allData.filter(item =>
+        //     item.kr.toLowerCase().includes(searchTerm)
+        //   ) || null;
+        // case '훈음':
+        //   return this.allData.filter(item =>
+        //     item.훈음.toLowerCase().includes(searchTerm)
+        //   ) || null;
+        // case '음':
+        //   return this.allData.filter(item =>
+        //     item.음.toLowerCase().includes(searchTerm)
+        //   ) || null;
+        // case '성부':
+        //   return this.allData.filter(item =>
+        //     item.성부.toLowerCase().includes(searchTerm)
+        //   ) || null;
         default:
           return this.allData.filter(item =>
-          item.한자.toLowerCase().includes(searchTerm)||item.음.toLowerCase().includes(searchTerm)||item.훈음.toLowerCase().includes(searchTerm)
-        )  
+          item.kr.includes(searchTerm))
       }
     },
     RelatedData() {
       const target = this.selected_item
       if (target !== '' && target.성부 !== '' ) {
           return this.allData.filter(item =>
-            item.성부.toLowerCase().includes(target.성부)
+            item.聲部.toLowerCase().includes(target.聲部)
           );
         }
       else {
@@ -536,8 +542,20 @@ img {
   border-bottom: 3px solid #007bff;
 }
 
+
 h2, h3 {
   margin: 0.5rem 0;
+}
+
+/* Dynamically scale the h2 text */
+.h2-훈음 {
+  margin: 0.5rem 0;
+  font-size: clamp(0.8rem, 2.5vw, 1.5rem); /* Dynamic font size scaling */
+  width: 100%; /* Ensures it takes the width of the container */
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .table-container {
@@ -653,6 +671,12 @@ li:hover {
 }
 
 /* <span> */
+.span-filter-info {
+  padding: 7px 14px;
+  background-color: transparent;
+  color: black;
+  font-size: 10px; 
+}
 .span-level {
   font-size: 13px;
   display: block;
@@ -812,11 +836,26 @@ button:hover {
   text-align: left
 }
 
-.div-searchbar {
+/* wraps SearchBy and SearchBar */
+.div-search-wrapper {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start;
+  width: 100%;
+}
+
+.div-search-by {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.div-search-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px;
+  width: 100%;
 }
 
 .exposition{
@@ -868,12 +907,12 @@ button:hover {
   display: inline-block; /* Makes the width match the text size */
 }
 
-.h1-한자:hover {
+/* .h1-한자:hover {
   background-color: #f0f0f0;
   transform: translateY(-2px) scale(1.05) rotate(-1deg);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
+} */
 
 .h5-context{
   font-size: small;
@@ -952,6 +991,12 @@ button:hover {
   border-radius: 10px; /* Your border-radius style */
 }
 
+/* Add hover effect */
+.card:hover {
+  transition: transform 0.3s;
+  transform: rotateY(30deg); /* Slightly rotate to indicate a flip */
+}
+
 .card.flipped {
   transform: rotateY(180deg);
 }
@@ -969,6 +1014,8 @@ button:hover {
   justify-content: center;
   flex-direction: column;
   border-radius: 10px; /* Ensures the rounded corners are consistent */
+  text-align: center;
+  overflow: hidden; /* Ensure no overflow of text */
 }
 
 .card-back {
