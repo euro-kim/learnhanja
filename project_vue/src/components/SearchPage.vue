@@ -39,7 +39,7 @@
     <div v-if="!isSortSelected" class="sort-dropdown">
         <select v-model="selectedSort" @change="sortResults">
             <option disabled value="">
-                Select Sort Order
+              정렬기준
             </option>
             <option v-for="option in sortOptions" 
                 :key="option" 
@@ -72,12 +72,12 @@
             </tr>
             <tr>
               <th>일본 漢字検定 급수</th>
-              <td v-if="selected_item['漢字検定'] !== ''">{{ selected_item["漢字検定"] }}</td>
+              <td v-if="selected_item['漢字検定'] !== '[]'">{{ selected_item["漢字検定"] }}</td>
               <td v-else>-</td>
             </tr>
             <tr>
               <th>JIS 수준</th>
-              <td v-if="selected_item['JIS水準'] !== ''">{{ selected_item["JIS水準"] }}</td>
+              <td v-if="selected_item['JIS水準'] !== '[]'">{{ selected_item["JIS水準"] }}</td>
               <td v-else>-</td>
             </tr>
           </tbody>
@@ -623,6 +623,73 @@ img {
 
 .tabs button.active {
   border-bottom: 3px solid #007bff;
+}
+/* dropdown */
+/* Centering the dropdown */
+/* Centering the dropdown */
+.sort-dropdown {
+    width: 200px; /* Maintain minimal width */
+    margin: 0 auto; /* Center the dropdown */
+    text-align: center; /* Center content */
+    background-color: transparent;
+    position: relative; /* Required for custom arrow */
+
+}
+
+/* Minimalistic select styling */
+.sort-dropdown select {
+    width: 100%;
+    padding: 8px 0; /* Minimal padding */
+    border: none; /* No border */
+    border-bottom: 2px solid #ccc; /* Neutral underline */
+    background-color: transparent; /* Transparent background */
+    color: #333; /* Neutral text color */
+    font-size: 16px;
+    text-align: center; /* Center text */
+    appearance: none; /* Remove default arrow */
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+/* Underline color when an item is selected */
+.sort-dropdown select:not([value=""]) {
+    border-bottom: 2px solid #007BFF; /* Blue underline when something is selected */
+}
+
+/* Subtle hover effect for dropdown */
+.sort-dropdown select:hover {
+    border-bottom: 2px solid #007BFF; /* Blue underline on hover */
+}
+
+/* Fancy dropdown items animation */
+.sort-dropdown select option {
+    padding: 8px; /* Minimal padding */
+    background-color: transparent;
+    color: #333;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Animation for smooth dropdown effect */
+    transform: translateY(20px); /* Initially below */
+    opacity: 0; /* Initially invisible */
+}
+
+/* Animate dropdown items on open */
+.sort-dropdown select:focus option {
+    transform: translateY(0); /* Move to place */
+    opacity: 1; /* Fade in */
+}
+
+/* Custom arrow */
+.sort-dropdown::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #333; /* Simple arrow */
+    transform: translateY(-50%);
+    pointer-events: none; /* Allow clicks through */
 }
 
 
