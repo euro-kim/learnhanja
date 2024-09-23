@@ -74,7 +74,7 @@
               <td v-else>미등재</td>
             </tr>
             <tr>
-              <th>일본 漢字検定</th>
+              <th>일본 漢字検定 급수</th>
               <td v-if="selected_item['漢字検定'] !== ''">{{ selected_item["漢字検定"] }}</td>
               <td v-else>-</td>
             </tr>
@@ -94,16 +94,53 @@
             </div>
                   <!-- 모양 정보 -->
             <div class="card-back">
-              {{selected_item.육서}} <br>
-                총 {{selected_item.畫數}}획 <br>
-                부수: {{selected_item.部首}} <br>
-                <span v-if="selected_item.聲部===''">{{selected_item.聲部}} <br> </span>
+              <table class="card-table">
+                <tr>
+                  <th>제자원리</th>
+                  <td>{{selected_item.制字}}</td>
+                </tr>
+                <tr>
+                  <th>획수</th>
+                  <td>{{selected_item.畫數}}</td>
+                </tr>
+                <tr>
+                  <th>부수</th>
+                  <td>{{selected_item.部首}}</td>
+                </tr>
+                <tr v-if="selected_item.聲部 !== ''">
+                  <th>성부</th>
+                  <td>{{selected_item.聲部}}</td>
+                </tr>
+              </table>
+              <table class="card-table">
+                <caption class="table-caption" v-if="selected_item.jp !== '' || selected_item.cn !== '' || selected_item.tw !== ''">
+                  이체자
+                </caption>
+                <tr v-if="selected_item.jp !== ''">
+                  <th>일본자</th>
+                  <td>{{selected_item.jp}}</td>
+                </tr>
+                <tr v-if="selected_item.cn !== ''">
+                  <th>중국자</th>
+                  <td>{{selected_item.cn}}</td>
+                </tr>
+                <tr v-if="selected_item.tw !== ''">
+                  <th>대만자</th>
+                  <td>{{selected_item.tw}}</td>
+                </tr>
+              </table>
+
             </div>
+
           </div>
         </div>
           <!--소리-->
         <table  class="info-table">
           <tbody>
+            <tr>
+              <th>한국훈</th>
+              <td>{{ (selected_item.훈).join('\n')}} </td>
+            </tr>
             <tr>
               <th>한국음</th>
               <td>{{ (selected_item.음).join('\n')}} </td>
@@ -124,11 +161,19 @@
         </table>
     </div>
     <div class="exposition">
-      <br>
-      English Meaning
-      <br>
-      {{selected_item.meaning}}
+      <div class="exposition-header">
+        English Meaning
+      </div>
+      <div class="exposition-meaning">
+        {{selected_item.meaning}}
+      </div>
     </div>
+    <div class="naver" @click="openPopup('https://hanja.dict.naver.com/#/entry/ccko/461ddef1e0954e7a9018d3cb28079dbc')">
+      <div class="naver-header">
+        Naver Search
+      </div>
+    </div>
+
 
       <!-- 예시 -->
       <div>
@@ -279,6 +324,9 @@ export default {
     }
   },
   methods:{
+    openPopup(url) {
+      window.open(url, '_blank', 'width=600,height=400');
+    },
     toggleFlip() {
       this.isFlipped = !this.isFlipped;
     },
@@ -534,11 +582,10 @@ img {
 }
 
 .tabs button:hover {
-  color: #007bff;
+  border-bottom: 3px solid #007bff;
 }
 
 .tabs button.active {
-  color: #007bff;
   border-bottom: 3px solid #007bff;
 }
 
@@ -674,7 +721,6 @@ li:hover {
 .span-filter-info {
   padding: 7px 14px;
   background-color: transparent;
-  color: black;
   font-size: 10px; 
 }
 .span-level {
@@ -727,21 +773,25 @@ button:hover {
 
 .button-filter {
   padding: 7px 14px;
+    box-sizing: border-box; /* Include padding and border in the element's total size */
+  border-bottom: 3px solid transparent; /* Add a transparent border */
   background-color: transparent;
   color: #a0a0a0;
   font-size: 10px; 
 }
 
 .button-filter:hover {
-  background-color:transparent;
+  color: #333;
+  border-bottom: 3px solid #007bff;
 }
 
 .button-filter.active {
   color: #333; /* White text for active filter buttons */
+  border-bottom: 3px solid #007bff;
 }
 
 .button-filter:hover:not(.disabled) {
-  background-color: #f0f0f0; /* Example background color on hover */
+  background-color: transparent; /* Example background color on hover */
 }
 
 .button-search {
@@ -858,11 +908,79 @@ button:hover {
   width: 100%;
 }
 
-.exposition{
-  text-align: left;
-  font-size: small;
-
+.exposition {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #e6f7ff; /* Light blue background */
+  border-left: 5px solid #1E90FF; /* Accent border on the left */
+  border-radius: 8px; /* Smooth rounded corners */
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  color: #333; /* Dark text for readability */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
+
+/* Make icon inline with text */
+.exposition-header {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.exposition-header::before {
+  content: "📘"; /* Icon to style it */
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.exposition-meaning {
+  font-family: 'Times New Roman', Times, serif; /* Apply Times New Roman */
+  font-size: 16px; /* Adjust size if needed */
+  font-style: italic; /* Optional: makes the text italic */
+}
+
+@media (max-width: 600px) {
+  .exposition {
+    font-size: 16px;
+    padding: 15px;
+  }
+}
+.naver {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #f0fff4; /* Light green background */
+  border-left: 5px solid #00b300; /* Accent border on the left (darker green) */
+  border-radius: 8px; /* Smooth rounded corners */
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  color: #333; /* Dark text for readability */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  cursor: pointer;
+}
+
+
+/* Make icon inline with text */
+.naver-header {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.naver-header::before {
+  content: "📗"; /* Icon to style it */
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+@media (max-width: 600px) {
+  .naver {
+    font-size: 16px;
+    padding: 15px;
+  }
+}
+
 
 /* <p> */
 .p-label{
