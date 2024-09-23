@@ -1,7 +1,5 @@
 <template>
   <div>
-
-
     <div :class="{'heading': true, 'folded-heading': user_input}">
       <a :href="link" rel="noopener noreferrer" class="logo-link">
         <img 
@@ -13,14 +11,13 @@
     </div>
 
     <div class="div-search-wrapper">
-      <!-- Search By -->
       <div class="div-search-by">
         <button
           v-for="filter in SearchByOptions"
           :key="filter.key"
           class="button-filter"
-          :class="{ active: SearchBy === filter.key }"
-          @click="setSearchBy(filter.key)"
+          :class="{ active: activeFilters.includes(filter.key) }"
+          @click="toggleFilter(filter.key)"
         >
           {{ filter.label }}
         </button>
@@ -38,20 +35,20 @@
       </div>
     </div>
 
-    <!-- HSK Dropdown -->
-    <div v-if="hskclicked == false" class="hsk-dropdown">
-        <select v-model="selectedHSKLevel" @change="setHSKFilter">
-          <option disabled value="">
-            Select HSK Level
-          </option>
-          <option v-for="level in hskLevels" 
-            :key="level" 
-            :value="level"
-            > 
-            HSK Level {{ level }}
-          </option>
+    <!-- Sort Dropdown -->
+    <div v-if="!isSortSelected" class="sort-dropdown">
+        <select v-model="selectedSort" @change="sortResults">
+            <option disabled value="">
+                Select Sort Order
+            </option>
+            <option v-for="option in sortOptions" 
+                :key="option" 
+                :value="option">
+                {{ option }}
+            </option>
         </select>
     </div>
+
 
     <!-- Selection -->
     <div v-if="selected_item !== ''" class="div-container">
@@ -236,7 +233,7 @@
         </div>
         <ul v-if=!selected_item class="ul-five">
           <li
-            v-for="element in SearchResult"
+            v-for="element in SortLogic"
             :key="element.id"
             @click="showPanel(element)"
           >
@@ -294,19 +291,25 @@ export default {
       link: 'http://learnhanja.com',
       //Search 
       allData: jsonData,
+      
       user_input: '', //user input
       searched_item: '',
+
       SearchBy: '', // Search with 
       SearchByOptions: [
         { key: '한자', label: '한자' },
-        { key: '훈음', label: '훈음' },
+        { key: '훈', label: '훈' },
         { key: '음', label: '음' },
+        { key: '부수', label: '부수' },
         { key: '성부', label: '성부' },
       ],
-      //HSK filter
-      hskclicked: false,
-      hskLevels: [1, 2, 3, 4, 5, 6], // HSK levels
-      selectedHSKLevel: '', // HSK level selected
+      activeFilters: ['한자','훈','음'], // array to store active filters
+
+
+      //Sort filter
+      isSortSelected: false,
+      sortOptions: ['畫數', "어문회"], 
+      selectedSort: '', 
       //choose words
       selected_item: '',
       selected_string: '',
@@ -324,6 +327,17 @@ export default {
     }
   },
   methods:{
+    toggleFilter(key) {
+      const index = this.activeFilters.indexOf(key);
+      if (index === -1) {
+        this.activeFilters.push(key); // Add the filter if not active
+      } else {
+        this.activeFilters.splice(index, 1); // Remove the filter if already active
+      }
+    },
+    sortResults() {
+      this.SortLogic; // Just to ensure it recalculates based on selected sort
+    },
     openPopup(url) {
       window.open(url, '_blank', 'width=600,height=400');
     },
@@ -411,9 +425,7 @@ export default {
         this.SearchBy = key;
       }
     },
-    setHSKFilter() {
-      this.SearchBy = `HSK Level ${this.selectedHSKLevel}`;
-    },
+
     StringHandler(input){
 
       if (input !== '' && input !==null) {
@@ -432,30 +444,54 @@ export default {
     }
   },
   computed: {
-    SearchResult() {
-      const searchTerm = this.searched_item.toLowerCase();
+    SearchLogic() {
+    const searchTerm = this.searched_item.toLowerCase();
 
-      switch (this.SearchBy) {
-        // case '한자':
-        //   return this.allData.filter(item =>
-        //     item.kr.toLowerCase().includes(searchTerm)
-        //   ) || null;
-        // case '훈음':
-        //   return this.allData.filter(item =>
-        //     item.훈음.toLowerCase().includes(searchTerm)
-        //   ) || null;
-        // case '음':
-        //   return this.allData.filter(item =>
-        //     item.음.toLowerCase().includes(searchTerm)
-        //   ) || null;
-        // case '성부':
-        //   return this.allData.filter(item =>
-        //     item.성부.toLowerCase().includes(searchTerm)
-        //   ) || null;
-        default:
-          return this.allData.filter(item =>
-          item.kr.includes(searchTerm))
+      // If no filters are active, return null (or an empty array if preferred)
+      if (this.activeFilters.length === 0) {
+        console.log('no active filter');
+        return null; // or return [];
       }
+      console.log('Active Filter',this.activeFilters);
+      // Apply the filters with OR logic (using `some`)
+      return this.allData.filter(item => {
+        return this.activeFilters.some(filter => {
+          switch (filter) {
+            case '한자':
+              return item.kr.toLowerCase().includes(searchTerm);
+            case '훈':
+              return item.훈.join(',').toLowerCase().includes(searchTerm);
+            case '음':
+              return item.음.join(',').toLowerCase().includes(searchTerm);
+            case '부수':
+              return item.部首.toLowerCase().includes(searchTerm);
+            case '성부':
+              return item.聲.toLowerCase().includes(searchTerm);
+          }
+        });
+      });
+    },
+    SortLogic() {
+      const searchResults = this.SearchLogic;
+      if (!searchResults || searchResults.length === 0) {
+        return []; // Return an empty array if no results
+      }
+
+      const criterium = this.selectedSort;
+
+      return searchResults.sort((a, b) => {
+        // Check if the properties exist and handle undefined cases
+        const aValue = a[criterium] ? a[criterium].toString().toLowerCase() : '';
+        const bValue = b[criterium] ? b[criterium].toString().toLowerCase() : '';
+
+        if (aValue < bValue) {
+          return -1; // a comes before b
+        }
+        if (aValue > bValue) {
+          return 1; // a comes after b
+        }
+        return 0; // Equal case
+      });
     },
     RelatedData() {
       const target = this.selected_item
@@ -778,11 +814,14 @@ button:hover {
   background-color: transparent;
   color: #a0a0a0;
   font-size: 10px; 
+  transition: color 0.2s ease-in-out, border-bottom 0.2s ease-in-out;
+
 }
 
 .button-filter:hover {
   color: #333;
   border-bottom: 3px solid #007bff;
+   
 }
 
 .button-filter.active {
