@@ -13,10 +13,10 @@
     <div class="div-search-wrapper">
       <div class="div-search-by">
         <button
-          v-for="filter in SearchByOptions"
+          v-for="filter in searchby_options"
           :key="filter.key"
           class="button-filter"
-          :class="{ active: activeFilters.includes(filter.key) }"
+          :class="{ active: searchby_active.includes(filter.key) }"
           @click="toggleFilter(filter.key)"
         >
           {{ filter.label }}
@@ -36,20 +36,36 @@
     </div>
 
     <!-- Sort Dropdown -->
-    <div v-if="!isSortSelected" class="sort-dropdown">
-        <select v-model="selectedSort" @change="sortResults">
+    <div v-if="!sortby_open" class="sort-dropdown">
+        <select v-model="sortby_active" @change="sortResults">
             <option disabled value="">
               정렬기준
             </option>
-            <option v-for="option in sortOptions" 
+            <option v-for="option in sortby_options" 
                 :key="option" 
                 :value="option">
                 {{ option }}
             </option>
         </select>
     </div>
-
-
+    
+    <!-- Filter Dropdown -->
+    <div @click="handleClickOutside" class="dropdown-container">
+      <div @click.stop="toggleDropdown" class="dropdown">
+        Select Filters
+        <span v-if="filter_active_chinalev.length"> ({{ filter_active_chinalev.length }})</span>
+      </div>
+      <div v-if="filter_open_chinalev" class="dropdown-content">
+        <label v-for="option in filter_options_chinalev" :key="option.value">
+          <input 
+            type="checkbox" 
+            :value="option.value" 
+            v-model="filter_active_chinalev" 
+          />
+          {{ option.text }}
+        </label>
+      </div>
+    </div> 
     <!-- Selection -->
     <div v-if="selected_item !== ''" class="div-container">
       <div class="table-container">
@@ -233,7 +249,7 @@
         </div>
         <ul v-if=!selected_item class="ul-five">
           <li
-            v-for="element in SortLogic"
+            v-for="element in FilterLogic"
             :key="element.id"
             @click="showPanel(element)"
           >
@@ -288,28 +304,38 @@ import jsonData from '../data/hanja.json';
 export default {
   data() {
     return {
+      //Load Data
+      allData: jsonData,
+      //link
       link: 'http://learnhanja.com',
       //Search 
-      allData: jsonData,
-      
       user_input: '', //user input
       searched_item: '',
 
-      SearchBy: '', // Search with 
-      SearchByOptions: [
+      //searchby
+      searchby_options: [
         { key: '한자', label: '한자' },
         { key: '훈', label: '훈' },
         { key: '음', label: '음' },
         { key: '부수', label: '부수' },
         { key: '성부', label: '성부' },
       ],
-      activeFilters: ['한자','훈','음'], // array to store active filters
+      searchby_active: ['한자','훈','음'], // array to store active filters
 
-
-      //Sort filter
-      isSortSelected: false,
-      sortOptions: ['畫數', "어문회"], 
-      selectedSort: '', 
+      //sortby
+      sortby_open: false,
+      sortby_options: ['畫數', "어문회"], 
+      sortby_active: '', 
+      
+      //Filter
+      filter_open_chinalev: false,
+      filter_options_chinalev: [
+        { value: 1, text: '1级' },
+        { value: 2, text: '2级' },
+        { value: 3, text: '3级' },
+      ],
+      filter_active_chinalev: [],
+      
       //choose words
       selected_item: '',
       selected_string: '',
@@ -327,12 +353,23 @@ export default {
     }
   },
   methods:{
+    toggleDropdown() {
+      this.filter_open_chinalev = !this.filter_open_chinalev;
+    },
+    handleClickOutside(event) {
+      // Close dropdown if clicked outside of dropdown content
+      const dropdownContent = this.$el.querySelector('.dropdown-content');
+      const dropdown = this.$el.querySelector('.dropdown');
+      if (this.filter_open_chinalev && !dropdown.contains(event.target) && !dropdownContent.contains(event.target)) {
+        this.filter_open_chinalev = false;
+      }
+    }, 
     toggleFilter(key) {
-      const index = this.activeFilters.indexOf(key);
+      const index = this.searchby_active.indexOf(key);
       if (index === -1) {
-        this.activeFilters.push(key); // Add the filter if not active
+        this.searchby_active.push(key); // Add the filter if not active
       } else {
-        this.activeFilters.splice(index, 1); // Remove the filter if already active
+        this.searchby_active.splice(index, 1); // Remove the filter if already active
       }
     },
     sortResults() {
@@ -415,16 +452,6 @@ export default {
       this.SelectItem(input);
       this.closePanel();
     },
-    setSearchBy(key) {
-      // Check if the filter is already active
-      if (this.SearchBy === key) {
-        // Remove the active filter if it is already active
-        this.SearchBy = '';
-      } else {
-        // Set the filter as active
-        this.SearchBy = key;
-      }
-    },
 
     StringHandler(input){
 
@@ -448,14 +475,14 @@ export default {
     const searchTerm = this.searched_item.toLowerCase();
 
       // If no filters are active, return null (or an empty array if preferred)
-      if (this.activeFilters.length === 0) {
+      if (this.searchby_active.length === 0) {
         console.log('no active filter');
         return null; // or return [];
       }
-      console.log('Active Filter',this.activeFilters);
+      console.log('Active Filter',this.searchby_active);
       // Apply the filters with OR logic (using `some`)
       return this.allData.filter(item => {
-        return this.activeFilters.some(filter => {
+        return this.searchby_active.some(filter => {
           switch (filter) {
             case '한자':
               return item.kr.toLowerCase().includes(searchTerm);
@@ -477,7 +504,7 @@ export default {
         return []; // Return an empty array if no results
       }
 
-      const criterium = this.selectedSort;
+      const criterium = this.sortby_active;
 
       return searchResults.sort((a, b) => {
         // Check if the properties exist and handle undefined cases
@@ -492,6 +519,15 @@ export default {
         }
         return 0; // Equal case
       });
+    },
+    FilterLogic() {
+      const dataList= this.SortLogic
+      if (this.filter_active_chinalev.length === 0) {
+        return dataList;
+      }
+      return dataList.filter(item =>
+        this.filter_active_chinalev.includes(item.级)
+      );
     },
     RelatedData() {
       const target = this.selected_item
@@ -625,6 +661,30 @@ img {
   border-bottom: 3px solid #007bff;
 }
 /* dropdown */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown {
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.dropdown-content {
+  display: block;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 1;
+  padding: 10px;
+  width: 200px; /* Adjust width as needed */
+}
+
+.dropdown-content label {
+  display: block;
+}
 /* Centering the dropdown */
 /* Centering the dropdown */
 .sort-dropdown {
