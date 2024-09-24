@@ -51,8 +51,42 @@
     
     <!-- Filter Dropdown -->
     <div @click="handleClickOutside" class="dropdown-container">
-      <div @click.stop="toggleDropdown" class="dropdown">
-        Select Filters
+      <div @click.stop="toggle_dropdown_readlev" class="dropdown">
+        읽기급수
+        <span v-if="filter_active_readlev.length"> ({{ filter_active_readlev.length }})</span>
+      </div>
+      <div v-if="filter_open_readlev" class="dropdown-content">
+        <label v-for="option in filter_options_readlev" :key="option.value">
+          <input 
+            type="checkbox" 
+            :value="option.value" 
+            v-model="filter_active_readlev" 
+          />
+          {{ option.text }}
+        </label>
+      </div>
+    </div> 
+
+    <div @click="handleClickOutside" class="dropdown-container">
+      <div @click.stop="toggle_dropdown_writelev" class="dropdown">
+        쓰기급수
+        <span v-if="filter_active_writelev.length"> ({{ filter_active_writelev.length }})</span>
+      </div>
+      <div v-if="filter_open_writelev" class="dropdown-content">
+        <label v-for="option in filter_options_writelev" :key="option.value">
+          <input 
+            type="checkbox" 
+            :value="option.value" 
+            v-model="filter_active_writelev" 
+          />
+          {{ option.text }}
+        </label>
+      </div>
+    </div> 
+
+    <div @click="handleClickOutside" class="dropdown-container">
+      <div @click.stop="toggle_dropdown_chinalev" class="dropdown">
+        China Level
         <span v-if="filter_active_chinalev.length"> ({{ filter_active_chinalev.length }})</span>
       </div>
       <div v-if="filter_open_chinalev" class="dropdown-content">
@@ -333,9 +367,53 @@ export default {
         { value: 1, text: '1级' },
         { value: 2, text: '2级' },
         { value: 3, text: '3级' },
+        { value: '', text: '기타' },
       ],
-      filter_active_chinalev: [],
+      filter_active_chinalev: [1,2,3,''], //'1级','2级','3级','기타']
+
+      filter_open_readlev: false,
+      filter_options_readlev: [
+        { value: '읽기8급', text: '읽기8급' },
+        { value: '읽기7급II', text: '읽기7급II' },
+        { value: '읽기7급', text: '읽기7급' },
+        { value: '읽기6급II', text: '읽기6급II' },
+        { value: '읽기6급', text: '읽기6급' },
+        { value: '읽기5급II', text: '읽기5급II' },
+        { value: '읽기5급', text: '읽기5급' },
+        { value: '읽기4급II', text: '읽기4급II' },
+        { value: '읽기4급', text: '읽기4급' },
+        { value: '읽기3급II', text: '읽기3급II' },
+        { value: '읽기3급', text: '읽기3급' },
+        { value: '읽기2급', text: '읽기2급' },
+        { value: '읽기1급', text: '읽기1급' },
+        { value: '읽기특급II', text: '읽기특급II' },
+        { value: '읽기특급', text: '읽기특급' },
+        { value: '', text: '기타' },
+      ],
+      filter_active_readlev: ['읽기8급','읽기7급II','읽기7급','읽기6급II','읽기6급','읽기5급II','읽기5급','읽기4급II','읽기4급','읽기3급II','읽기3급','읽기2급','읽기1급'],
       
+      filter_open_writelev: false,
+      filter_options_writelev: [
+        { value: '쓰기8급', text: '쓰기8급' },
+        { value: '쓰기7급II', text: '쓰기7급II' },
+        { value: '쓰기7급', text: '쓰기7급' },
+        { value: '쓰기6급II', text: '쓰기6급II' },
+        { value: '쓰기6급', text: '쓰기6급' },
+        { value: '쓰기5급II', text: '쓰기5급II' },
+        { value: '쓰기5급', text: '쓰기5급' },
+        { value: '쓰기4급II', text: '쓰기4급II' },
+        { value: '쓰기4급', text: '쓰기4급' },
+        { value: '쓰기3급II', text: '쓰기3급II' },
+        { value: '쓰기3급', text: '쓰기3급' },
+        { value: '쓰기2급', text: '쓰기2급' },
+        { value: '쓰기1급', text: '쓰기1급' },
+        { value: '쓰기특급II', text: '쓰기특급II' },
+        { value: '쓰기특급', text: '쓰기특급' },
+        { value: '', text: '기타' },
+      ],
+      filter_active_writelev: ['쓰기8급','쓰기7급II','쓰기7급','쓰기6급II','쓰기6급','쓰기5급II','쓰기5급','쓰기4급II','쓰기4급','쓰기3급II','쓰기3급','쓰기2급','쓰기1급'],
+      
+
       //choose words
       selected_item: '',
       selected_string: '',
@@ -353,7 +431,13 @@ export default {
     }
   },
   methods:{
-    toggleDropdown() {
+    toggle_dropdown_readlev() {
+      this.filter_open_readlev = !this.filter_open_readlev;
+    },
+    toggle_dropdown_writelev() {
+      this.filter_open_writelev = !this.filter_open_writelev;
+    },
+    toggle_dropdown_chinalev() {
       this.filter_open_chinalev = !this.filter_open_chinalev;
     },
     handleClickOutside(event) {
@@ -364,6 +448,14 @@ export default {
         this.filter_open_chinalev = false;
       }
     }, 
+    mounted() {
+    // Add event listener to detect clicks outside
+    document.addEventListener('click', this.handleClickOutside);
+    },
+    beforeDestroy() {
+      // Remove event listener when component is destroyed
+      document.removeEventListener('click', this.handleClickOutside);
+    },
     toggleFilter(key) {
       const index = this.searchby_active.indexOf(key);
       if (index === -1) {
@@ -521,13 +613,29 @@ export default {
       });
     },
     FilterLogic() {
-      const dataList= this.SortLogic
-      if (this.filter_active_chinalev.length === 0) {
+      const dataList = this.SortLogic;
+
+      // If no filters are selected for both filters, return all data
+      if (this.filter_active_chinalev.length === 0 && this.filter_active_readlev.length === 0) {
         return dataList;
       }
-      return dataList.filter(item =>
-        this.filter_active_chinalev.includes(item.级)
-      );
+
+      return dataList.filter(item => {
+        // OR logic for Chinalev: if no filters for Chinalev, it's always true
+        const matchesChinalev = this.filter_active_chinalev.length === 0 || 
+                                this.filter_active_chinalev.includes(item.级);
+
+        // OR logic for Readlev: if no filters for Readlev, it's always true
+        const matchesReadlev = this.filter_active_readlev.length === 0 || 
+                              this.filter_active_readlev.includes(item.읽기);
+
+        // OR logic for Readlev: if no filters for Readlev, it's always true
+        const matchesWritelev = this.filter_active_writelev.length === 0 || 
+                              this.filter_active_writelev.includes(item.쓰기);
+        
+        // AND logic: both Chinalev and Readlev conditions must be met
+        return matchesChinalev && matchesReadlev && matchesWritelev;
+      });
     },
     RelatedData() {
       const target = this.selected_item
@@ -669,22 +777,48 @@ img {
 .dropdown {
   cursor: pointer;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: none;
+  border-bottom: 2px solid transparent; /* Initially no underline */
+  font-weight: 500;
+  transition: border-color 0.3s ease;
+}
+
+.dropdown:hover {
+  border-bottom: 2px solid #999; /* Underline on hover */
+}
+
+.dropdown-active {
+  border-bottom: 2px solid #007bff; /* Underline when filters are active */
 }
 
 .dropdown-content {
   display: block;
   position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.9); /* Transparent background */
+  border: none; /* Remove border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
   z-index: 1;
   padding: 10px;
-  width: 200px; /* Adjust width as needed */
+  width: 100px;
 }
 
 .dropdown-content label {
   display: block;
+  padding: 3px 0;
+  font-weight: 400;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  text-align: left;
 }
+
+.dropdown-content label:hover {
+  color: #007bff; /* Blue text color on hover */
+}
+
+.dropdown-content input[type="checkbox"] {
+  margin-right: 8px;
+}
+
 /* Centering the dropdown */
 /* Centering the dropdown */
 .sort-dropdown {
