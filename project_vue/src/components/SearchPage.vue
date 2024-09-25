@@ -34,72 +34,6 @@
         <button class="button-search" @click="performSearch">Search</button>
       </div>
     </div>
-
-    <!-- Sort Dropdown -->
-    <div v-if="!sortby_open" class="sort-dropdown">
-        <select v-model="sortby_active" @change="sortResults">
-            <option disabled value="">
-              정렬기준
-            </option>
-            <option v-for="option in sortby_options" 
-                :key="option" 
-                :value="option">
-                {{ option }}
-            </option>
-        </select>
-    </div>
-    
-    <!-- Filter Dropdown -->
-    <div @click="handleClickOutside" class="dropdown-container">
-      <div @click.stop="toggle_dropdown_readlev" class="dropdown">
-        읽기급수
-        <span v-if="filter_active_readlev.length"> ({{ filter_active_readlev.length }})</span>
-      </div>
-      <div v-if="filter_open_readlev" class="dropdown-content">
-        <label v-for="option in filter_options_readlev" :key="option.value">
-          <input 
-            type="checkbox" 
-            :value="option.value" 
-            v-model="filter_active_readlev" 
-          />
-          {{ option.text }}
-        </label>
-      </div>
-    </div> 
-
-    <div @click="handleClickOutside" class="dropdown-container">
-      <div @click.stop="toggle_dropdown_writelev" class="dropdown">
-        쓰기급수
-        <span v-if="filter_active_writelev.length"> ({{ filter_active_writelev.length }})</span>
-      </div>
-      <div v-if="filter_open_writelev" class="dropdown-content">
-        <label v-for="option in filter_options_writelev" :key="option.value">
-          <input 
-            type="checkbox" 
-            :value="option.value" 
-            v-model="filter_active_writelev" 
-          />
-          {{ option.text }}
-        </label>
-      </div>
-    </div> 
-
-    <div @click="handleClickOutside" class="dropdown-container">
-      <div @click.stop="toggle_dropdown_chinalev" class="dropdown">
-        China Level
-        <span v-if="filter_active_chinalev.length"> ({{ filter_active_chinalev.length }})</span>
-      </div>
-      <div v-if="filter_open_chinalev" class="dropdown-content">
-        <label v-for="option in filter_options_chinalev" :key="option.value">
-          <input 
-            type="checkbox" 
-            :value="option.value" 
-            v-model="filter_active_chinalev" 
-          />
-          {{ option.text }}
-        </label>
-      </div>
-    </div> 
     <!-- Selection -->
     <div v-if="selected_item !== ''" class="div-container">
       <div class="table-container">
@@ -176,12 +110,10 @@
                   <td>{{selected_item.tw}}</td>
                 </tr>
               </table>
-
             </div>
-
           </div>
         </div>
-          <!--소리-->
+        <!--소리-->
         <table  class="info-table">
           <tbody>
             <tr>
@@ -206,7 +138,7 @@
             </tr>
           </tbody>
         </table>
-    </div>
+      </div>
     <div class="exposition">
       <div class="exposition-header">
         English Meaning
@@ -215,7 +147,7 @@
         {{selected_item.meaning}}
       </div>
     </div>
-    <div class="naver" @click="openPopup('https://hanja.dict.naver.com/#/entry/ccko/461ddef1e0954e7a9018d3cb28079dbc')">
+    <div class="naver" @click="openPopup(`https://hanja.dict.naver.com/#/search?query=${selected_item.kr}&range=all`)">
       <div class="naver-header">
         Naver Search
       </div>
@@ -274,61 +206,137 @@
       
     </div>
 
-    <!-- Search Result -->
-    <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
-        <div>검색결과</div>
+    <!-- Filter Dropdown -->
+    <div v-if="searched_item !== '' && selected_item == ''"> 
+      <div @click="handleClickOutside" class="dropdown-container">
+        <div @click.stop="toggle_dropdown_readlev" 
+          class="dropdown"
+          :class="{ 'dropdown-open': filter_open_readlev }"
+          >
+          읽기급수
+          <!-- <span v-if="filter_active_readlev.length"> ({{ filter_active_readlev.length }})</span> -->
+        </div>
+        <div v-if="filter_open_readlev" class="dropdown-content">
+            <label v-for="option in filter_options_readlev" :key="option.value">
+              <input 
+                type="checkbox" 
+                :value="option.value" 
+                v-model="filter_active_readlev" 
+              />
+              {{ option.text }}
+            </label>
+        </div>
+      </div> 
+
+      <div @click="handleClickOutside" class="dropdown-container">
+        <div 
+          @click.stop="toggle_dropdown_writelev" 
+          class="dropdown"
+          :class="{ 'dropdown-open': filter_open_writelev }"
+        >
+          쓰기급수
+          <!-- <span v-if="filter_active_writelev.length"> ({{ filter_active_writelev.length }})</span> -->
+        </div>
+        <div v-if="filter_open_writelev" class="dropdown-content">
+          <label v-for="option in filter_options_writelev" :key="option.value">
+            <input 
+              type="checkbox" 
+              :value="option.value" 
+              v-model="filter_active_writelev" 
+            />
+            {{ option.text }}
+          </label>
+        </div>
+      </div> 
+
+      <div @click="handleClickOutside" class="dropdown-container">
+        <div 
+          @click.stop="toggle_dropdown_chinalev" 
+          class="dropdown"
+          :class="{ 'dropdown-open': filter_open_chinalev }"
+        >
+          China Level
+          <!-- <span v-if="filter_active_chinalev.length"> ({{ filter_active_chinalev.length }})</span> -->
+        </div>
+        <div v-if="filter_open_chinalev" class="dropdown-content">
+          <label v-for="option in filter_options_chinalev" :key="option.value">
+            <input 
+              type="checkbox" 
+              :value="option.value" 
+              v-model="filter_active_chinalev" 
+            />
+            {{ option.text }}
+          </label>
+        </div>
+      </div> 
+    </div>
+      
+      <!-- Search Result -->
+      <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
+        <!-- Sort Dropdown -->
+        <div v-if="!sortby_open" class="sort-dropdown">
+            <select v-model="sortby_active" @change="sortResults">
+                <option disabled value="">
+                  정렬기준
+                  <span v-if="sortby_active"> {{sortby_active}}</span>
+                </option>
+                <option v-for="option in sortby_options" 
+                    :key="option" 
+                    :value="option">
+                    {{ option }}
+                </option>
+            </select>
+        </div>
+        <br>
         <div> 
           <span v-if="selected_item !== ''"> {{selected_item.kr}}</span>
           <span v-if="selected_string !== ''"> {{selected_string}} does not exist </span>
         </div>
         <ul v-if=!selected_item class="ul-five">
           <li
-            v-for="element in FilterLogic"
-            :key="element.id"
-            @click="showPanel(element)"
+          v-for="element in SortLogic"
+          :key="element.id"
+          @click="showPanel(element)"
           >
-            <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
-            <span class="span-word" >{{ element.kr }}</span>
-            <span class="span-meaning-sound">{{ 훈음(element).join('\n') }}</span>
+          <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
+          <span class="span-word" >{{ element.kr }}</span>
+          <span class="span-meaning-sound">{{ 훈음(element).join('\n') }}</span>
           </li>
         </ul> 
       </div>
-
-    <div v-if="searched_item !== '' && RelatedData !=null" class="div-container">
-      <!-- Related Words -->
-      <a1>관련 한자</a1>
-      <ul class="ul-five">
-        <li
-          v-for="element in RelatedData"
-          :key="element.한자"
-          @click="showPanel(element)"
-        >
-          <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
-          <span class="span-word">{{ element.kr }}</span>
-          <span class="span-meaning-sound">{{ 훈음(element).join('\n')}}</span>
-        </li>
-      </ul>
-      <!-- Show a message if no results are found -->
+    <!-- Related Words -->
+      <div v-if="searched_item !== '' && RelatedData !=null" class="div-container">
+        <a1>관련 한자</a1>
+        <ul class="ul-five">
+          <li
+            v-for="element in RelatedData"
+            :key="element.한자"
+            @click="showPanel(element)"
+          >
+            <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
+            <span class="span-word">{{ element.kr }}</span>
+            <span class="span-meaning-sound">{{ 훈음(element).join('\n')}}</span>
+          </li>
+        </ul>
+      </div>
       
-    </div>
-    
-    <!-- Popup Panel -->
-    <div v-if="clicked_item" class="div-popup-panel">
-      <p class="div-popup-level">{{clicked_item["읽기"]}} {{clicked_item["쓰기"]}}</p>
-      <button class="button-close" @click="closePanel">&times;</button>
-      <div class="div-panel-component-meaning">
-        <p class="p-label">부수<br></p>
-        <p class="p-letter" @click="StringHandler(clicked_item.部首)">{{ clicked_item.部首}}</p>
+      <!-- Popup Panel -->
+      <div v-if="clicked_item" class="div-popup-panel">
+        <p class="div-popup-level">{{clicked_item["읽기"]}} {{clicked_item["쓰기"]}}</p>
+        <button class="button-close" @click="closePanel">&times;</button>
+        <div class="div-panel-component-meaning">
+          <p class="p-label">부수<br></p>
+          <p class="p-letter" @click="StringHandler(clicked_item.部首)">{{ clicked_item.部首}}</p>
+        </div>
+        <div class="div-panel-component-sound" >
+          <p class="p-label" v-if="clicked_item.聲部">성부<br></p>
+          <p class="p-letter" @click="StringHandler(clicked_item.聲部)">{{ clicked_item.聲部}}</p>
+        </div>
+        <div class="div-panel-component-word">
+          <h1 @click="SelectClose(clicked_item)" class="h1-word">{{ clicked_item.kr }}</h1>
+        </div>
+        <!--<audio :src="clicked_item.sound" controls></audio> -->
       </div>
-      <div class="div-panel-component-sound" >
-        <p class="p-label" v-if="clicked_item.聲部">성부<br></p>
-        <p class="p-letter" @click="StringHandler(clicked_item.聲部)">{{ clicked_item.聲部}}</p>
-      </div>
-      <div class="div-panel-component-word">
-        <h1 @click="SelectClose(clicked_item)" class="h1-word">{{ clicked_item.kr }}</h1>
-      </div>
-      <!--<audio :src="clicked_item.sound" controls></audio> -->
-    </div>
   </div>
 </template>
 
@@ -590,8 +598,33 @@ export default {
         });
       });
     },
+    FilterLogic() {
+      const dataList = this.SearchLogic;
+      
+      // If no filters are selected for both filters, return all data
+      if (this.filter_active_chinalev.length === 0 && this.filter_active_readlev.length === 0) {
+        return dataList;
+      }
+      
+      return dataList.filter(item => {
+        // OR logic for Chinalev: if no filters for Chinalev, it's always true
+        const matchesChinalev = this.filter_active_chinalev.length === 0 || 
+        this.filter_active_chinalev.includes(item.级);
+        
+        // OR logic for Readlev: if no filters for Readlev, it's always true
+        const matchesReadlev = this.filter_active_readlev.length === 0 || 
+        this.filter_active_readlev.includes(item.읽기);
+        
+        // OR logic for Readlev: if no filters for Readlev, it's always true
+        const matchesWritelev = this.filter_active_writelev.length === 0 || 
+        this.filter_active_writelev.includes(item.쓰기);
+        
+        // AND logic: both Chinalev and Readlev conditions must be met
+        return matchesChinalev && matchesReadlev && matchesWritelev;
+      });
+    },
     SortLogic() {
-      const searchResults = this.SearchLogic;
+      const searchResults = this.FilterLogic;
       if (!searchResults || searchResults.length === 0) {
         return []; // Return an empty array if no results
       }
@@ -610,31 +643,6 @@ export default {
           return 1; // a comes after b
         }
         return 0; // Equal case
-      });
-    },
-    FilterLogic() {
-      const dataList = this.SortLogic;
-
-      // If no filters are selected for both filters, return all data
-      if (this.filter_active_chinalev.length === 0 && this.filter_active_readlev.length === 0) {
-        return dataList;
-      }
-
-      return dataList.filter(item => {
-        // OR logic for Chinalev: if no filters for Chinalev, it's always true
-        const matchesChinalev = this.filter_active_chinalev.length === 0 || 
-                                this.filter_active_chinalev.includes(item.级);
-
-        // OR logic for Readlev: if no filters for Readlev, it's always true
-        const matchesReadlev = this.filter_active_readlev.length === 0 || 
-                              this.filter_active_readlev.includes(item.읽기);
-
-        // OR logic for Readlev: if no filters for Readlev, it's always true
-        const matchesWritelev = this.filter_active_writelev.length === 0 || 
-                              this.filter_active_writelev.includes(item.쓰기);
-        
-        // AND logic: both Chinalev and Readlev conditions must be met
-        return matchesChinalev && matchesReadlev && matchesWritelev;
       });
     },
     RelatedData() {
@@ -769,6 +777,7 @@ img {
   border-bottom: 3px solid #007bff;
 }
 /* dropdown */
+/* dropdown */
 .dropdown-container {
   position: relative;
   display: inline-block;
@@ -776,30 +785,32 @@ img {
 
 .dropdown {
   cursor: pointer;
-  padding: 10px;
+  padding: 10px 30px 10px 10px;
   border: none;
-  border-bottom: 2px solid transparent; /* Initially no underline */
+  border-bottom: 2px solid transparent;
   font-weight: 500;
   transition: border-color 0.3s ease;
+  position: relative;
+  font-family: 'Noto Sans KR', sans-serif; /* Use pretty font */
 }
 
 .dropdown:hover {
-  border-bottom: 2px solid #999; /* Underline on hover */
+  border-bottom: 2px solid #007BFF;
 }
 
 .dropdown-active {
-  border-bottom: 2px solid #007bff; /* Underline when filters are active */
+  border-bottom: 2px solid #007bff;
 }
 
 .dropdown-content {
   display: block;
   position: absolute;
-  background-color: rgba(255, 255, 255, 0.9); /* Transparent background */
-  border: none; /* Remove border */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1;
   padding: 10px;
-  width: 100px;
+  width: 120px;
 }
 
 .dropdown-content label {
@@ -812,14 +823,35 @@ img {
 }
 
 .dropdown-content label:hover {
-  color: #007bff; /* Blue text color on hover */
+  color: #007bff;
 }
 
 .dropdown-content input[type="checkbox"] {
   margin-right: 8px;
 }
 
-/* Centering the dropdown */
+/* Custom arrow */
+.dropdown::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #333; /* Simple arrow pointing down */
+  transform: translateY(-50%);
+  transition: transform 0.3s ease; /* Smooth rotation */
+  pointer-events: none; /* Allow clicks through */
+}
+
+.dropdown-open::after {
+  transform: translateY(-50%) rotate(180deg); /* Arrow pointing up */
+}
+
+
+
 /* Centering the dropdown */
 .sort-dropdown {
     width: 200px; /* Maintain minimal width */
