@@ -273,20 +273,28 @@
       
       <!-- Search Result -->
       <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
-        <!-- Sort Dropdown -->
-        <div v-if="!sortby_open" class="sort-dropdown">
-            <select v-model="sortby_active" @change="sortResults">
-                <option disabled value="">
-                  정렬기준
-                  <span v-if="sortby_active"> {{sortby_active}}</span>
-                </option>
-                <option v-for="option in sortby_options" 
-                    :key="option" 
-                    :value="option">
-                    {{ option }}
-                </option>
-            </select>
-        </div>
+        <!-- Sortby Dropdown -->
+        <div @click="handleClickOutside" class="dropdown-container">
+          <div 
+            @click.stop="toggle_dropdown_sortby" 
+            class="dropdown"
+            :class="{ 'dropdown-open': sortby_open }"
+          >
+            정렬기준
+            <span v-if="sortby_active.length>0">: {{ sortby_active }}</span>
+          </div>
+          <div v-if="sortby_open" class="dropdown-content">
+            <label v-for="option in sortby_options" :key="option.value">
+              <input 
+                type="radio" 
+                :value="option.text" 
+                v-model="sortby_active" 
+              />
+              {{ option.text }}
+            </label>
+          </div>
+        </div> 
+        <br>
         <br>
         <div> 
           <span v-if="selected_item !== ''"> {{selected_item.kr}}</span>
@@ -305,7 +313,7 @@
         </ul> 
       </div>
     <!-- Related Words -->
-      <div v-if="searched_item !== '' && RelatedData !=null" class="div-container">
+      <!-- <div v-if="searched_item !== '' && RelatedData !=null" class="div-container">
         <a1>관련 한자</a1>
         <ul class="ul-five">
           <li
@@ -318,7 +326,7 @@
             <span class="span-meaning-sound">{{ 훈음(element).join('\n')}}</span>
           </li>
         </ul>
-      </div>
+      </div> -->
       
       <!-- Popup Panel -->
       <div v-if="clicked_item" class="div-popup-panel">
@@ -366,8 +374,11 @@ export default {
 
       //sortby
       sortby_open: false,
-      sortby_options: ['畫數', "어문회"], 
-      sortby_active: '', 
+      sortby_options: [
+        {value: '어문회', text: '어문회'},
+        {value: '畫數', text: '획수'},
+      ], 
+      sortby_active: '어문회', 
       
       //Filter
       filter_open_chinalev: false,
@@ -447,6 +458,9 @@ export default {
     },
     toggle_dropdown_chinalev() {
       this.filter_open_chinalev = !this.filter_open_chinalev;
+    },
+    toggle_dropdown_sortby() {
+      this.sortby_open = !this.sortby_open;
     },
     handleClickOutside(event) {
       // Close dropdown if clicked outside of dropdown content
@@ -628,8 +642,7 @@ export default {
       if (!searchResults || searchResults.length === 0) {
         return []; // Return an empty array if no results
       }
-
-      const criterium = this.sortby_active;
+      const criterium =this.sortby_options.find(option => option.text === this.sortby_active).value
 
       return searchResults.sort((a, b) => {
         // Check if the properties exist and handle undefined cases
@@ -854,69 +867,76 @@ img {
 
 /* Centering the dropdown */
 .sort-dropdown {
-    width: 200px; /* Maintain minimal width */
-    margin: 0 auto; /* Center the dropdown */
-    text-align: center; /* Center content */
-    background-color: transparent;
-    position: relative; /* Required for custom arrow */
-
+  width: 200px; /* Maintain minimal width */
+  margin: 0 auto; /* Center the dropdown */
+  text-align: center; /* Center content */
+  background-color: transparent;
+  position: relative; /* Required for custom arrow */
 }
 
 /* Minimalistic select styling */
 .sort-dropdown select {
-    width: 100%;
-    padding: 8px 0; /* Minimal padding */
-    border: none; /* No border */
-    border-bottom: 2px solid #ccc; /* Neutral underline */
-    background-color: transparent; /* Transparent background */
-    color: #333; /* Neutral text color */
-    font-size: 16px;
-    text-align: center; /* Center text */
-    appearance: none; /* Remove default arrow */
-    cursor: pointer;
-    transition: border-color 0.3s ease;
+  width: 100%;
+  padding: 8px 0; /* Minimal padding */
+  border: none; /* No border */
+  border-bottom: 2px solid #ccc; /* Neutral underline */
+  background-color: transparent; /* Transparent background */
+  color: #333; /* Neutral text color */
+  font-size: 16px;
+  font-family: 'Noto Sans KR', sans-serif; /* Use pretty font */
+  text-align: center; /* Center text */
+  appearance: none; /* Remove default arrow */
+  cursor: pointer;
+  transition: border-color 0.3s ease;
 }
 
 /* Underline color when an item is selected */
 .sort-dropdown select:not([value=""]) {
-    border-bottom: 2px solid #007BFF; /* Blue underline when something is selected */
+  border-bottom: 2px solid #007BFF; /* Blue underline when something is selected */
 }
 
 /* Subtle hover effect for dropdown */
 .sort-dropdown select:hover {
-    border-bottom: 2px solid #007BFF; /* Blue underline on hover */
+  border-bottom: 2px solid #007BFF; /* Blue underline on hover */
 }
 
 /* Fancy dropdown items animation */
 .sort-dropdown select option {
-    padding: 8px; /* Minimal padding */
-    background-color: transparent;
-    color: #333;
-    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Animation for smooth dropdown effect */
-    transform: translateY(20px); /* Initially below */
-    opacity: 0; /* Initially invisible */
+  padding: 8px; /* Minimal padding */
+  background-color: transparent;
+  color: #333;
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Animation for smooth dropdown effect */
+  transform: translateY(20px); /* Initially below */
+  opacity: 0; /* Initially invisible */
 }
 
 /* Animate dropdown items on open */
 .sort-dropdown select:focus option {
-    transform: translateY(0); /* Move to place */
-    opacity: 1; /* Fade in */
+  transform: translateY(0); /* Move to place */
+  opacity: 1; /* Fade in */
 }
 
 /* Custom arrow */
 .sort-dropdown::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #333; /* Simple arrow */
-    transform: translateY(-50%);
-    pointer-events: none; /* Allow clicks through */
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #333; /* Simple arrow */
+  transform: translateY(-50%);
+  transition: transform 0.3s ease; /* Smooth rotation */
+  pointer-events: none; /* Allow clicks through */
 }
+
+/* Rotate arrow when dropdown is open */
+.sort-dropdown select:focus + .sort-dropdown::after {
+  transform: translateY(-50%) rotate(180deg); /* Arrow pointing up */
+}
+
 
 
 h2, h3 {
