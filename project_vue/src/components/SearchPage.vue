@@ -182,7 +182,6 @@
         </div>-->
 
         <div v-if="selected_item['HSK 급수'] !== '' && activeTab === 'HSK' ">
-          <h3>HSK 단어 </h3> 
           <table class="custom-table">
             <thead>
               <tr>
@@ -206,7 +205,6 @@
         </div>
         
         <div v-if="selected_item['JLPT 급수'] !== '' && activeTab === 'JLPT'">
-          <h3>JLPT 단어</h3>
           <table class="custom-table">
             <thead>
               <tr>
