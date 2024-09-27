@@ -179,14 +179,27 @@
               </tr>
             </tbody>
           </table>
-        </div>
+        </div>-->
 
         <div v-if="selected_item['HSK 급수'] !== '' && activeTab === 'HSK' ">
           <h3>HSK 단어 </h3> 
           <table class="custom-table">
+            <thead>
+              <tr>
+                <th>HSK 급수</th>
+                <th>단어</th>
+                <th>사성음</th>
+                <th>뜻</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr v-for="(row, rowIndex) in selected_item['HSK 단어'].split('\n')" :key="rowIndex">
-                <td v-for="(item, colIndex) in parseHSK(row)" :key="colIndex">{{ item }}</td>
+              <tr v-for="hskword in HSKData" :key="hskword.id"> <!-- Assuming each word has a unique id -->
+                <td>{{ hskword.HSK}}</td>
+                <td>{{ hskword.traditional }}({{ hskword.simplified }})</td>
+                <td>{{ hskword.pinyin }}</td>
+                <td>{{ hskword['meaning(kor)'] }}</td>
+                <td>{{ hskword['meaning(eng)'] }}</td>
               </tr>
             </tbody>
           </table>
@@ -195,13 +208,26 @@
         <div v-if="selected_item['JLPT 급수'] !== '' && activeTab === 'JLPT'">
           <h3>JLPT 단어</h3>
           <table class="custom-table">
+            <thead>
+              <tr>
+                <th>JLPT 급수</th>
+                <th>단어</th>
+                <th>히라가나</th>
+                <th>품사</th>
+                <th>뜻</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr v-for="(row, rowIndex) in selected_item['JLPT 단어'].split('\n')" :key="rowIndex">
-                <td v-for="(item, colIndex) in parseJLPT(row)" :key="colIndex">{{ item }}</td>
+              <tr v-for="jlptword in JLPTData" :key="jlptword.JLPT"> <!-- Assuming each word has a unique id -->
+                <td>{{ jlptword.JLPT}}</td>
+                <td>{{ jlptword.word}}</td>
+                <td>{{ jlptword.hiragana }}</td>
+                <td>{{ jlptword.type.join(',') }}</td>
+                <td>{{ jlptword.meaning }}</td>
               </tr>
             </tbody>
           </table>  
-        </div> -->
+        </div> 
       </div>
       
     </div>
@@ -350,12 +376,16 @@
 
 <script>
 import jsonData from '../data/hanja.json';
+import jsonHSK from '../data/hsk(merge).json';
+import jsonJLPT from '../data/jlpt(kor).json';
 
 export default {
   data() {
     return {
       //Load Data
       allData: jsonData,
+      HSK : jsonHSK,
+      JLPT: jsonJLPT,
       //link
       link: 'http://learnhanja.com',
       //Search 
@@ -442,6 +472,8 @@ export default {
       isFlipped: false,
     };
   },
+
+
   watch: {
     search(newVal) {
       if (newVal.length === 0) {
@@ -449,6 +481,8 @@ export default {
       }
     }
   },
+
+
   methods:{
     toggle_dropdown_readlev() {
       this.filter_open_readlev = !this.filter_open_readlev;
@@ -551,10 +585,11 @@ export default {
         // You can replace the above line with your actual search logic
       } else {
         console.log('Search input is empty');
-    }
+      }
     },
     SelectItem(input) {
       this.selected_item= input;
+      console.log(input)
     },
     showPanel(input) {
       this.clicked_item = input;
@@ -566,7 +601,6 @@ export default {
       this.SelectItem(input);
       this.closePanel();
     },
-
     StringHandler(input){
 
       if (input !== '' && input !==null) {
@@ -584,6 +618,8 @@ export default {
       }
     }
   },
+
+
   computed: {
     SearchLogic() {
     const searchTerm = this.searched_item.toLowerCase();
@@ -660,7 +696,7 @@ export default {
     },
     RelatedData() {
       const target = this.selected_item
-      if (target !== '' && target.성부 !== '' ) {
+      if (target !== '' && target.制字 == '형성' ) {
           return this.allData.filter(item =>
             item.聲部.toLowerCase().includes(target.聲部)
           );
@@ -668,8 +704,30 @@ export default {
       else {
         return null;
       }
+    },
+    HSKData() {
+      const target=this.selected_item    
+      if (target) {
+        return this.HSK.filter(item =>
+            item.traditional.toLowerCase().includes(target.kr)
+          );
+        }
+      else {
+        return null;
+      }
+    },
+    JLPTData() {
+      const target=this.selected_item    
+      if (target) {
+        return this.JLPT.filter(item =>
+            item.word.toLowerCase().includes(target.kr)
+          );
+        }
+      else {
+        return null;
+      }
     }
-  }
+  }  
 };
 </script>
 
@@ -1030,11 +1088,13 @@ h2, h3 {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
+  font-size: 0.9rem; /* Smaller font size */
+  table-layout: auto; /* Allow columns to adjust based on content */
 }
 
 .custom-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 6px 10px; /* Adjusted padding for better sizing */
 }
 
 .custom-table tr:nth-child(even) {
@@ -1044,6 +1104,7 @@ h2, h3 {
 .custom-table tr:hover {
   background-color: #f1f1f1;
 }
+
 
 
 /* <li> */
