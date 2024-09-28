@@ -118,23 +118,23 @@
           <tbody>
             <tr>
               <th>한국훈</th>
-              <td>{{ (selected_item.훈).join('\n')}} </td>
+              <td>{{ (selected_item.훈).join(', ')}} </td>
             </tr>
             <tr>
               <th>한국음</th>
-              <td>{{ (selected_item.음).join('\n')}} </td>
+              <td>{{ (selected_item.음).join(', ')}} </td>
             </tr>
             <tr>
               <th>사성음</th>
-              <td>{{ pinyin(selected_item).join('\n') }}</td>
+              <td>{{ pinyin(selected_item).join(', ') }}</td>
             </tr>
             <tr>
               <th>일본훈</th>
-              <td>{{ (selected_item["訓読み"]).join('\n') }}</td>
+              <td>{{ (selected_item["訓読み"]).join(', ') }}</td>
             </tr>
             <tr>
               <th>일본음</th>
-              <td>{{ (selected_item['音読み']).join('\n') }}</td>
+              <td>{{ (selected_item['音読み']).join(', ') }}</td>
             </tr>
           </tbody>
         </table>
@@ -333,6 +333,7 @@
           <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
           <span class="span-word" >{{ element.kr }}</span>
           <span class="span-meaning-sound">{{ 훈음(element).join('\n') }}</span>
+          <span class="span-meaning-sound">{{ pinyin(element).join('\n') }}</span>
           </li>
         </ul> 
       </div>
@@ -405,6 +406,9 @@ export default {
       sortby_options: [
         {value: '어문회', text: '어문회'},
         {value: '畫數', text: '획수'},
+        {value: '음', text: '한국음'},
+        {value: '사성음', text: '중국음'},
+        {value: '音読み', text: '일본음'},
       ], 
       sortby_active: '어문회', 
       
@@ -466,7 +470,7 @@ export default {
       selected_string: '',
       clicked_item: '',
       //individual words
-      activeTab: '성어', // Default active tab
+      activeTab: 'HSK', // Default active tab
       isFlipped: false,
     };
   },
@@ -676,22 +680,57 @@ export default {
       if (!searchResults || searchResults.length === 0) {
         return []; // Return an empty array if no results
       }
-      const criterium =this.sortby_options.find(option => option.text === this.sortby_active).value
+
+      const criterium = this.sortby_options.find(option => option.text === this.sortby_active).value;
+
+      // Define the consonant order
+      const consonantOrder = ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's'];
 
       return searchResults.sort((a, b) => {
-        // Check if the properties exist and handle undefined cases
-        const aValue = a[criterium] ? a[criterium].toString().toLowerCase() : '';
-        const bValue = b[criterium] ? b[criterium].toString().toLowerCase() : '';
+        // If sorting by pinyin, apply custom consonant and vowel logic
+        if (criterium === '사성음') {
+          const aConsonant = a.声[0] ? a.声[0].toString().toLowerCase() : '';
+          const bConsonant = b.声[0] ? b.声[0].toString().toLowerCase() : '';
+
+          const aVowel = a.韵[0] ? a.韵[0].toString().toLowerCase() : '';
+          const bVowel = b.韵[0] ? b.韵[0].toString().toLowerCase() : '';
+
+          const aTone = a.tones[0] ? parseInt(a.tones[0]) : 0;
+          const bTone = b.tones[0] ? parseInt(b.tones[0]) : 0;
+          
+          // Compare consonants first
+          if (`${aVowel}${aConsonant}` === `${bVowel}${bConsonant}`) {
+            return aTone - bTone;
+          }
+
+          if (aConsonant === bConsonant) {
+            return aVowel.localeCompare(bVowel);
+          }
+          return consonantOrder.indexOf(aConsonant) - consonantOrder.indexOf(bConsonant);
+        }
+        
+        let aValue=''
+        let bValue=''
+        // For other criteria, use default sorting
+        if (criterium === '음' || criterium === '音読み') {
+          aValue = a[criterium][0] ? a[criterium][0].toString().toLowerCase() : '';
+          bValue = b[criterium][0] ? b[criterium][0].toString().toLowerCase() : '';
+        }
+        else {
+          aValue = a[criterium] ? a[criterium].toString().toLowerCase() : '';
+          bValue = b[criterium] ? b[criterium].toString().toLowerCase() : '';
+        }
 
         if (aValue < bValue) {
-          return -1; // a comes before b
+          return -1;
         }
         if (aValue > bValue) {
-          return 1; // a comes after b
+          return 1;
         }
-        return 0; // Equal case
+        return 0;
       });
     },
+
     RelatedData() {
       const target = this.selected_item
       if (target !== '' && target.制字 == '형성' ) {
