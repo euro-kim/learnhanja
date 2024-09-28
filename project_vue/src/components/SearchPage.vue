@@ -279,7 +279,7 @@
           class="dropdown"
           :class="{ 'dropdown-open': filter_open_chinalev }"
         >
-          China Level
+          퉁용규범한자표
           <!-- <span v-if="filter_active_chinalev.length"> ({{ filter_active_chinalev.length }})</span> -->
         </div>
         <div v-if="filter_open_chinalev" class="dropdown-content">
@@ -295,8 +295,29 @@
       </div> 
     </div>
       
-      <!-- Search Result -->
-      <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
+    
+    <!-- Search Result -->
+    <div v-if="searched_item !== '' && selected_item == '' " class="div-container">
+      <!-- Toggle Button -->
+      <div class="toggle-container">
+        <label class="switch">
+          <input type="checkbox" v-model="toggle_active">
+          <span class="slider"></span>
+        </label>
+        <p>미리보기</p>
+      </div>
+      <!-- Checkbox -->
+        <div class="checkbox-group">
+          <label v-for="option in checkbox_options" :key="option.value" class="checkbox-label">
+            <input
+              type="checkbox"
+              :value="option.value"
+              v-model="checkbox_active"
+            />
+            {{ option.value }}
+          </label>
+        </div>
+
         <!-- Sortby Dropdown -->
         <div @click="handleClickOutside" class="dropdown-container">
           <div 
@@ -330,10 +351,12 @@
           :key="element.id"
           @click="showPanel(element)"
           >
-          <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
-          <span class="span-word" >{{ element.kr }}</span>
-          <span class="span-meaning-sound">{{ 훈음(element).join('\n') }}</span>
-          <span class="span-meaning-sound">{{ pinyin(element).join('\n') }}</span>
+            <span v-if="checkbox_active.includes('급수')" class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
+            <span class="span-word" >{{ element.kr }}</span>
+            <span v-if="checkbox_active.includes('훈음')" class="span-meaning-sound">{{ 훈음(element).join(', ') }}</span>
+            <span v-if="checkbox_active.includes('중국음')" class="span-meaning-sound">{{ pinyin(element).join(', ') }}</span>
+            <span v-if="checkbox_active.includes('일본음')" class="span-meaning-sound">{{ element.音読み.join(', ') }}</span>
+            <span v-if="checkbox_active.includes('일본훈')" class="span-meaning-sound">{{ element.訓読み.join(', ') }}</span>
           </li>
         </ul> 
       </div>
@@ -410,7 +433,7 @@ export default {
         {value: '사성음', text: '중국음'},
         {value: '音読み', text: '일본음'},
       ], 
-      sortby_active: '어문회', 
+      sortby_active: '중국음', 
       
       //Filter
       filter_open_chinalev: false,
@@ -441,7 +464,7 @@ export default {
         { value: '읽기특급', text: '읽기특급' },
         { value: '', text: '기타' },
       ],
-      filter_active_readlev: ['읽기8급','읽기7급II','읽기7급','읽기6급II','읽기6급','읽기5급II','읽기5급','읽기4급II','읽기4급','읽기3급II','읽기3급','읽기2급','읽기1급'],
+      filter_active_readlev: ['읽기8급','읽기7급II','읽기7급','읽기6급II','읽기6급','읽기5급II','읽기5급','읽기4급II','읽기4급','읽기3급II','읽기3급','읽기2급','읽기1급','읽기특급II','읽기특급','' ],
       
       filter_open_writelev: false,
       filter_options_writelev: [
@@ -462,8 +485,20 @@ export default {
         { value: '쓰기특급', text: '쓰기특급' },
         { value: '', text: '기타' },
       ],
-      filter_active_writelev: ['쓰기8급','쓰기7급II','쓰기7급','쓰기6급II','쓰기6급','쓰기5급II','쓰기5급','쓰기4급II','쓰기4급','쓰기3급II','쓰기3급','쓰기2급','쓰기1급'],
+      filter_active_writelev: ['쓰기8급','쓰기7급II','쓰기7급','쓰기6급II','쓰기6급','쓰기5급II','쓰기5급','쓰기4급II','쓰기4급','쓰기3급II','쓰기3급','쓰기2급','쓰기1급','쓰기특급II','쓰기특급',''],
       
+      //Display
+      checkbox_active: ['훈음','중국음'], // List to store all selected values
+      checkbox_options: [
+        {value: '급수'},
+        {value: '훈음'},
+        {value: '중국음'},
+        {value: '일본음'},
+        {value: '일본훈'},
+      
+      ],
+
+      toggle_active: false, // State of the toggle (binary: true/false)
 
       //choose words
       selected_item: '',
@@ -594,7 +629,12 @@ export default {
       console.log(input)
     },
     showPanel(input) {
-      this.clicked_item = input;
+      if (this.toggle_active){
+        this.clicked_item = input;
+      }
+      else{
+        this.SelectItem(input);
+      }
     },
     closePanel() {
       this.clicked_item = '';
@@ -637,7 +677,9 @@ export default {
         return this.searchby_active.some(filter => {
           switch (filter) {
             case '한자':
-              return item.kr.toLowerCase().includes(searchTerm);
+              return [item.kr, item.jp, item.tw, item.cn].some(prop => 
+                prop.toLowerCase().includes(searchTerm)
+              );
             case '훈':
               return item.훈.join(',').toLowerCase().includes(searchTerm);
             case '음':
@@ -745,25 +787,56 @@ export default {
     HSKData() {
       const target=this.selected_item    
       if (target) {
-        return this.HSK.filter(item =>
-            item.traditional.toLowerCase().includes(target.kr)
-          );
+        if (target.tw !== '' && target.jp === ''){
+          return this.HSK.filter(item =>
+              item.traditional.toLowerCase().includes(target.tw)
+            );
         }
+        if (target.tw === '' && target.jp !== ''){
+          return this.HSK.filter(item =>
+              item.traditional.toLowerCase().includes(target.jp)
+            );
+        }
+        if (target.tw !== '' && target.jp !== ''){
+          return this.HSK.filter(item =>
+              item.traditional.toLowerCase().includes(target.tw)
+            );
+        }
+        return this.HSK.filter(item =>
+              item.traditional.toLowerCase().includes(target.kr)
+        );
+      }
       else {
         return null;
       }
     },
     JLPTData() {
       const target=this.selected_item    
+      console.log(target)
       if (target) {
-        return this.JLPT.filter(item =>
-            item.word.toLowerCase().includes(target.kr)
-          );
+        if (target.tw !== '' && target.jp === ''){
+          return this.JLPT.filter(item =>
+              item.word.toLowerCase().includes(target.tw)
+            );
+          }
+        if (target.tw === '' && target.jp !== ''){
+          return this.JLPT.filter(item =>
+              item.word.toLowerCase().includes(target.jp)
+            );
         }
+        if (target.tw !== '' && target.jp !== ''){
+          return this.JLPT.filter(item =>
+              item.word.toLowerCase().includes(target.jp)
+            );
+        }
+        return this.JLPT.filter(item =>
+          item.word.toLowerCase().includes(target.kr)
+        );
+      }
       else {
         return null;
       }
-    }
+    },
   }  
 };
 </script>
@@ -884,7 +957,76 @@ img {
 .tabs button.active {
   border-bottom: 3px solid #007bff;
 }
-/* dropdown */
+/* Checkbox */
+.checkbox-group {
+  display: flex;
+  flex-direction: row; /* Arrange checkboxes horizontally */
+}
+.checkbox-label {
+  margin-right: 20px; /* Spacing between checkboxes */
+}
+
+/* toggle */
+.toggle-container {
+  position: absolute;
+  left: 90%; /* Position 70% from the left */
+  transform: translateX(-50%); /* Center the container horizontally if needed */
+  text-align: right;
+  align-items: center;
+  gap: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider:before {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+
 /* dropdown */
 .dropdown-container {
   position: relative;
@@ -1264,6 +1406,7 @@ button:hover {
 
 /* <div> */
   .div-container {
+  position: relative;
   max-width: 1000px; /* Adjust as needed */
   margin: 13px auto;
   padding: 20px;
