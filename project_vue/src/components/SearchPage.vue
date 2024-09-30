@@ -844,12 +844,15 @@ export default {
 
 </script>
 <style>
+@import "../assets/css/checkbox.css";
 @import "../assets/css/searchbar.css";
+@import "../assets/css/searchresult.css";
 @import "../assets/css/toggle.css";
 @import "../assets/css/dropdown.css";
 @import "../assets/css/info-table.css";
 @import "../assets/css/related-table.css";
 @import "../assets/css/exposition.css";
+@import "../assets/css/popup.css";
 @import "../assets/css/flipcard.css";
 </style>
 
@@ -910,14 +913,7 @@ img {
 }
 
 
-/* Checkbox */
-.checkbox-group {
-  display: flex;
-  flex-direction: row; /* Arrange checkboxes horizontally */
-}
-.checkbox-label {
-  margin-right: 20px; /* Spacing between checkboxes */
-}
+
 
 h2, h3 {
   margin: 0.5rem 0;
@@ -1038,9 +1034,6 @@ li:hover {
   color:#fff
 }
 
-
-
-
 /* <div> */
   .div-container {
   position: relative;
@@ -1050,92 +1043,6 @@ li:hover {
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.div-popup-panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  max-width: 400px;
-  width: 100%;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.div-popup-panel::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0);
-  z-index: -1;
-}
-
-@media (max-width: 768px) {
-  .div-popup-panel {
-    max-width: 400px; /* Adjust max-width to be 90% of the viewport width */
-    width: 80%;    /* Allow width to auto adjust within the max-width */
-    height: auto;   /* Allow height to auto adjust based on content */
-  }
-}
-
-.div-panel-component-meaning {
-  position: absolute;
-  font-size: medium;
-  top: 30%;
-  left: 10%;
-}
-
-.div-panel-component-sound {
-  position: absolute;
-  font-size: medium;
-  top: 30%;
-  left: 80%;
-  width: auto; /* Adjust based on content */
-  height: auto; /* Adjust based on content */
-  box-sizing: border-box; /* Ensure padding and borders are included in the width and height */
-}
-
-.div-panel-component-word{
-  position:relative;
-  top: 50%;
-  left: 25%;
-  width: 50%;
-  height: 100%;
-  font-size: medium
-}
-
-.div-panel-component-explanation{
-  text-align: left
-}
-
-/* wraps SearchBy and SearchBar */
-.div-search-wrapper {
-  display: flex;
-  flex-direction: column; /* Stack children vertically */
-  align-items: flex-start;
-  width: 100%;
-}
-
-.div-search-by {
-  display: flex; /* Use flexbox for alignment */
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.div-search-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
 }
 
 /* Make icon inline with text */
@@ -1204,53 +1111,7 @@ li:hover {
   font-size: small;
 }
 
-/* <ul> */
-.ul-single {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); 
-  gap: 10px; /* Space between grid items */
-}
 
-.ul-single li {
-  grid-column: 3 / 4; /* Place item in the 3rd column */
-}
-
-.ul-five {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 columns */
-  gap: 10px; /* Space between grid items */
-}
-
-/* Add a responsive design */
-@media (max-width: 1200px) {
-  .ul-five {
-    grid-template-columns: repeat(4, 1fr); /* 4 columns for medium screens */
-  }
-}
-
-@media (max-width: 900px) {
-  .ul-five {
-    grid-template-columns: repeat(3, 1fr); /* 3 columns for smaller screens */
-  }
-}
-
-@media (max-width: 600px) {
-  .ul-five {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for very small screens */
-  }
-}
-
-@media (max-width: 400px) {
-  .ul-five {
-    grid-template-columns: 1fr; /* 1 column for extra small screens */
-  }
-}
 
 /* <audio> */
   audio {

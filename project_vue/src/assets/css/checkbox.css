@@ -1,0 +1,8 @@
+/* Checkbox */
+.checkbox-group {
+    display: flex;
+    flex-direction: row; /* Arrange checkboxes horizontally */
+  }
+  .checkbox-label {
+    margin-right: 20px; /* Spacing between checkboxes */
+  }
