@@ -1,0 +1,76 @@
+/* dropdown */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown {
+    position: relative;
+    box-sizing: border-box; 
+    padding: 10px 30px 10px 10px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-width: 2px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: border-color 0.3s ease;
+    font-family: 'Noto Sans KR', sans-serif; /* Use pretty font */
+    cursor: pointer;
+  }
+  
+  .dropdown:hover {
+    border-bottom: 2px solid #007BFF;
+  }
+  
+  .dropdown-active {
+    border-bottom: 2px solid #007bff;
+  }
+  
+  .dropdown-content {
+    display: block;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    padding: 10px;
+    width: 120px;
+  }
+  
+  .dropdown-content label {
+    display: block;
+    padding: 3px 0;
+    font-weight: 400;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    text-align: left;
+  }
+  
+  .dropdown-content label:hover {
+    color: #007bff;
+  }
+  
+  .dropdown-content input[type="checkbox"] {
+    margin-right: 8px;
+  }
+  
+  /* Custom arrow */
+  .dropdown::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #333; /* Simple arrow pointing down */
+    transform: translateY(-50%);
+    transition: transform 0.3s ease; /* Smooth rotation */
+    pointer-events: none; /* Allow clicks through */
+  }
+  
+  .dropdown-open::after {
+    transform: translateY(-50%) rotate(180deg); /* Arrow pointing up */
+  }
+  

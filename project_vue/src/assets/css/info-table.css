@@ -1,0 +1,66 @@
+/* Container for the table for both level and sound*/
+.info-table {
+    width: 30%;
+    flex:1;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 13px;
+    font-family: 'Arial', sans-serif;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden; /* Rounds the corners */
+  }
+  
+  /* Table header styling */
+  .info-table th {
+    width: 15%;
+    background: linear-gradient(45deg, #1E90FF, #00BFFF); /* Gradient blue */
+    color: white;
+    font-size: 13px;
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: bold;
+  }
+  
+  /* Table body styling */
+  .info-table td {
+    width: 15%;
+    font-size: 13px;
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd; /* Light border for separation */
+  }
+  
+  /* Alternate row background color */
+  .info-table tbody tr:nth-child(even) {
+    background-color: #f2f8fc; /* Light blue background for even rows */
+  }
+  
+  /* First column (header) styling */
+  .info-table th:first-child {
+    border-top-left-radius: 10px; /* Rounded corners */
+  }
+  
+  .info-table th:last-child {
+    border-top-right-radius: 10px; /* Rounded corners */
+  }
+  
+  .info-table td:first-child {
+    border-left: none; /* Removes the border on the first column */
+  }
+  
+  .info-table td:last-child {
+    border-right: none; /* Removes the border on the last column */
+  }
+  
+  /* Last row styling */
+  .info-table tbody tr:last-child td {
+    border-bottom: none; /* Removes the bottom border for the last row */
+  }
+  
+  /* Responsive design */
+  @media (max-width: 600px) {
+    table, th, td {
+      font-size: 16px;
+    }
+  }
+  

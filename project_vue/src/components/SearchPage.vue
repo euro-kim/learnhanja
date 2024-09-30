@@ -15,13 +15,13 @@
         <button
           v-for="filter in searchby_options"
           :key="filter.key"
-          class="button-filter"
+          class="button-searchby"
           :class="{ active: searchby_active.includes(filter.key) }"
           @click="toggleFilter(filter.key)"
         >
           {{ filter.label }}
         </button>
-        <span class="span-filter-info">로 검색하기</span>
+        <span class="span-searchby">로 검색하기</span>
       </div>
       <!-- Search Bar -->
       <div class="div-search-bar">
@@ -147,8 +147,8 @@
         {{selected_item.meaning}}
       </div>
     </div>
-    <div class="naver" @click="openPopup(`https://hanja.dict.naver.com/#/search?query=${selected_item.kr}&range=all`)">
-      <div class="naver-header">
+    <div class="exposition naver" @click="openPopup(`https://hanja.dict.naver.com/#/search?query=${selected_item.kr}&range=all`)">
+      <div class="exposition-header naver-header">
         Naver Search
       </div>
     </div>
@@ -186,7 +186,8 @@
             <thead>
               <tr>
                 <th>HSK 급수</th>
-                <th>단어</th>
+                <th>번체자</th>
+                <th>간체자</th>
                 <th>사성음</th>
                 <th>뜻</th>
                 <th>Meaning</th>
@@ -195,7 +196,8 @@
             <tbody>
               <tr v-for="hskword in HSKData" :key="hskword.id"> <!-- Assuming each word has a unique id -->
                 <td>{{ hskword.HSK}}</td>
-                <td>{{ hskword.traditional }}({{ hskword.simplified }})</td>
+                <td>{{ hskword.traditional }}</td>
+                <td>{{ hskword.simplified }}</td>
                 <td>{{ hskword.pinyin }}</td>
                 <td>{{ hskword['meaning(kor)'] }}</td>
                 <td>{{ hskword['meaning(eng)'] }}</td>
@@ -279,7 +281,7 @@
           class="dropdown"
           :class="{ 'dropdown-open': filter_open_chinalev }"
         >
-          퉁용규범한자표
+          통용규범한자표
           <!-- <span v-if="filter_active_chinalev.length"> ({{ filter_active_chinalev.length }})</span> -->
         </div>
         <div v-if="filter_open_chinalev" class="dropdown-content">
@@ -397,9 +399,9 @@
 </template>
 
 <script>
-import jsonData from '../data/hanja.json';
-import jsonHSK from '../data/hsk(merge).json';
-import jsonJLPT from '../data/jlpt(kor).json';
+import jsonData from '../assets/json/hanja.json';
+import jsonHSK from '../assets/json/hsk(merge).json';
+import jsonJLPT from '../assets/json/jlpt(kor).json';
 
 export default {
   data() {
@@ -839,7 +841,17 @@ export default {
     },
   }  
 };
+
 </script>
+<style>
+@import "../assets/css/searchbar.css";
+@import "../assets/css/toggle.css";
+@import "../assets/css/dropdown.css";
+@import "../assets/css/info-table.css";
+@import "../assets/css/related-table.css";
+@import "../assets/css/exposition.css";
+@import "../assets/css/flipcard.css";
+</style>
 
 <style scoped>
 .heading {
@@ -898,65 +910,6 @@ img {
 }
 
 
-.input-search {
-  width: 100%;
-  max-width: 600px;
-  padding: 10px 20px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  font-size: 16px;
-  color: #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.input-search::placeholder {
-  color: #999;
-}
-
-.input-search:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-.input-search:focus::placeholder {
-  color: #666;
-}
-
-.div-기본{
-  width: 20%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
-
-
-/* Responsive design */
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #ccc;
-}
-
-.tabs button {
-  background: none;
-  border: none;
-  padding: 1rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #333;
-  border-bottom: 3px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.tabs button:hover {
-  border-bottom: 3px solid #007bff;
-}
-
-.tabs button.active {
-  border-bottom: 3px solid #007bff;
-}
 /* Checkbox */
 .checkbox-group {
   display: flex;
@@ -965,216 +918,6 @@ img {
 .checkbox-label {
   margin-right: 20px; /* Spacing between checkboxes */
 }
-
-/* toggle */
-.toggle-container {
-  position: absolute;
-  left: 90%; /* Position 70% from the left */
-  transform: translateX(-50%); /* Center the container horizontally if needed */
-  text-align: right;
-  align-items: center;
-  gap: 15px;
-  font-family: Arial, sans-serif;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #4caf50;
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-.slider:before {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-
-/* dropdown */
-.dropdown-container {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown {
-  cursor: pointer;
-  padding: 10px 30px 10px 10px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-weight: 500;
-  transition: border-color 0.3s ease;
-  position: relative;
-  font-family: 'Noto Sans KR', sans-serif; /* Use pretty font */
-}
-
-.dropdown:hover {
-  border-bottom: 2px solid #007BFF;
-}
-
-.dropdown-active {
-  border-bottom: 2px solid #007bff;
-}
-
-.dropdown-content {
-  display: block;
-  position: absolute;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-  padding: 10px;
-  width: 120px;
-}
-
-.dropdown-content label {
-  display: block;
-  padding: 3px 0;
-  font-weight: 400;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  text-align: left;
-}
-
-.dropdown-content label:hover {
-  color: #007bff;
-}
-
-.dropdown-content input[type="checkbox"] {
-  margin-right: 8px;
-}
-
-/* Custom arrow */
-.dropdown::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid #333; /* Simple arrow pointing down */
-  transform: translateY(-50%);
-  transition: transform 0.3s ease; /* Smooth rotation */
-  pointer-events: none; /* Allow clicks through */
-}
-
-.dropdown-open::after {
-  transform: translateY(-50%) rotate(180deg); /* Arrow pointing up */
-}
-
-
-
-/* Centering the dropdown */
-.sort-dropdown {
-  width: 200px; /* Maintain minimal width */
-  margin: 0 auto; /* Center the dropdown */
-  text-align: center; /* Center content */
-  background-color: transparent;
-  position: relative; /* Required for custom arrow */
-}
-
-/* Minimalistic select styling */
-.sort-dropdown select {
-  width: 100%;
-  padding: 8px 0; /* Minimal padding */
-  border: none; /* No border */
-  border-bottom: 2px solid #ccc; /* Neutral underline */
-  background-color: transparent; /* Transparent background */
-  color: #333; /* Neutral text color */
-  font-size: 16px;
-  font-family: 'Noto Sans KR', sans-serif; /* Use pretty font */
-  text-align: center; /* Center text */
-  appearance: none; /* Remove default arrow */
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-}
-
-/* Underline color when an item is selected */
-.sort-dropdown select:not([value=""]) {
-  border-bottom: 2px solid #007BFF; /* Blue underline when something is selected */
-}
-
-/* Subtle hover effect for dropdown */
-.sort-dropdown select:hover {
-  border-bottom: 2px solid #007BFF; /* Blue underline on hover */
-}
-
-/* Fancy dropdown items animation */
-.sort-dropdown select option {
-  padding: 8px; /* Minimal padding */
-  background-color: transparent;
-  color: #333;
-  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Animation for smooth dropdown effect */
-  transform: translateY(20px); /* Initially below */
-  opacity: 0; /* Initially invisible */
-}
-
-/* Animate dropdown items on open */
-.sort-dropdown select:focus option {
-  transform: translateY(0); /* Move to place */
-  opacity: 1; /* Fade in */
-}
-
-/* Custom arrow */
-.sort-dropdown::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid #333; /* Simple arrow */
-  transform: translateY(-50%);
-  transition: transform 0.3s ease; /* Smooth rotation */
-  pointer-events: none; /* Allow clicks through */
-}
-
-/* Rotate arrow when dropdown is open */
-.sort-dropdown select:focus + .sort-dropdown::after {
-  transform: translateY(-50%) rotate(180deg); /* Arrow pointing up */
-}
-
-
 
 h2, h3 {
   margin: 0.5rem 0;
@@ -1196,71 +939,6 @@ h2, h3 {
   gap: 20px; /* Add space between the tables */
 }
 
-/* Container for the table */
-.info-table {
-  width: 30%;
-  flex:1;
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 13px;
-  font-family: 'Arial', sans-serif;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden; /* Rounds the corners */
-}
-
-/* Table header styling */
-.info-table th {
-  width: 15%;
-  background: linear-gradient(45deg, #1E90FF, #00BFFF); /* Gradient blue */
-  color: white;
-  font-size: 13px;
-  text-align: left;
-  padding: 12px 15px;
-  font-weight: bold;
-}
-
-/* Table body styling */
-.info-table td {
-  width: 15%;
-  font-size: 13px;
-  padding: 12px 15px;
-  border-bottom: 1px solid #ddd; /* Light border for separation */
-}
-
-/* Alternate row background color */
-.info-table tbody tr:nth-child(even) {
-  background-color: #f2f8fc; /* Light blue background for even rows */
-}
-
-/* First column (header) styling */
-.info-table th:first-child {
-  border-top-left-radius: 10px; /* Rounded corners */
-}
-
-.info-table th:last-child {
-  border-top-right-radius: 10px; /* Rounded corners */
-}
-
-.info-table td:first-child {
-  border-left: none; /* Removes the border on the first column */
-}
-
-.info-table td:last-child {
-  border-right: none; /* Removes the border on the last column */
-}
-
-/* Last row styling */
-.info-table tbody tr:last-child td {
-  border-bottom: none; /* Removes the bottom border for the last row */
-}
-
-/* Responsive design */
-@media (max-width: 600px) {
-  table, th, td {
-    font-size: 16px;
-  }
-}
 
 /* Styles for the new table */
 .custom-table {
@@ -1283,8 +961,6 @@ h2, h3 {
 .custom-table tr:hover {
   background-color: #f1f1f1;
 }
-
-
 
 /* <li> */
 li {
@@ -1331,7 +1007,7 @@ li:hover {
 }
 
 /* <button> */
-button {
+.blue-button {
   margin-top: 10px;
   font-size: 18px;
   padding: 10px 20px;
@@ -1344,10 +1020,6 @@ button {
   margin-bottom: 5px;
 }
 
-button:hover {
-  background-color: #3464d4;
-  color:#ffffff
-}
 
 .button-close {
   position: absolute;
@@ -1358,51 +1030,16 @@ button:hover {
   border: none;
   font-size: 1.5em;
   cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.5s ease-in-out, border-bottom 0.5s ease-in-out;
+}
+.button-close:hover {
+  background-color: #3464d4;
+  color:#fff
 }
 
-.button-filter {
-  padding: 7px 14px;
-    box-sizing: border-box; /* Include padding and border in the element's total size */
-  border-bottom: 3px solid transparent; /* Add a transparent border */
-  background-color: transparent;
-  color: #a0a0a0;
-  font-size: 10px; 
-  transition: color 0.2s ease-in-out, border-bottom 0.2s ease-in-out;
 
-}
 
-.button-filter:hover {
-  color: #333;
-  border-bottom: 3px solid #007bff;
-   
-}
-
-.button-filter.active {
-  color: #333; /* White text for active filter buttons */
-  border-bottom: 3px solid #007bff;
-}
-
-.button-filter:hover:not(.disabled) {
-  background-color: transparent; /* Example background color on hover */
-}
-
-.button-search {
-  border-radius: 25px;
-  margin-left: 10px; /* Space between input and button */
-  font-size: 16px;
-  cursor: pointer;
-  margin-bottom: 8px;
-}
-
-.button-search:hover {
-  background-color: #0056b3;
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-}
-
-.button-search:focus {
-  outline: none;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
-}
 
 /* <div> */
   .div-container {
@@ -1501,77 +1138,15 @@ button:hover {
   width: 100%;
 }
 
-.exposition {
-  margin: 20px 0;
-  padding: 20px;
-  background-color: #e6f7ff; /* Light blue background */
-  border-left: 5px solid #1E90FF; /* Accent border on the left */
-  border-radius: 8px; /* Smooth rounded corners */
-  font-family: 'Arial', sans-serif;
-  font-size: 14px;
-  color: #333; /* Dark text for readability */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
 /* Make icon inline with text */
-.exposition-header {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.exposition-header::before {
-  content: "📘"; /* Icon to style it */
-  font-size: 20px;
-  margin-right: 10px;
-}
-
-.exposition-meaning {
-  font-family: 'Times New Roman', Times, serif; /* Apply Times New Roman */
-  font-size: 16px; /* Adjust size if needed */
-  font-style: italic; /* Optional: makes the text italic */
-}
-
-@media (max-width: 600px) {
-  .exposition {
-    font-size: 16px;
-    padding: 15px;
-  }
-}
 .naver {
-  margin: 20px 0;
-  padding: 20px;
   background-color: #f0fff4; /* Light green background */
   border-left: 5px solid #00b300; /* Accent border on the left (darker green) */
-  border-radius: 8px; /* Smooth rounded corners */
-  font-family: 'Arial', sans-serif;
-  font-size: 14px;
-  color: #333; /* Dark text for readability */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   cursor: pointer;
-}
-
-
-/* Make icon inline with text */
-.naver-header {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  margin-bottom: 10px;
 }
 
 .naver-header::before {
   content: "📗"; /* Icon to style it */
-  font-size: 20px;
-  margin-right: 10px;
-}
-
-@media (max-width: 600px) {
-  .naver {
-    font-size: 16px;
-    padding: 15px;
-  }
 }
 
 
@@ -1680,59 +1255,6 @@ button:hover {
 /* <audio> */
   audio {
   margin-top: 10px;
-}
-.card-container {
-  perspective: 1000px;
-  cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
-}
-
-.card-container {
-  perspective: 1000px;
-  cursor: pointer;
-  width: 20%; /* Keeping the card width as per your preference */
-}
-
-.card {
-  width: 100%; /* Ensures the card takes up the full width of the container */
-  height: 100%; /* Adjust the height as needed */
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Your box-shadow style */
-  border-radius: 10px; /* Your border-radius style */
-}
-
-/* Add hover effect */
-.card:hover {
-  transition: transform 0.3s;
-  transform: rotateY(30deg); /* Slightly rotate to indicate a flip */
-}
-
-.card.flipped {
-  transform: rotateY(180deg);
-}
-
-.card-front,
-.card-back {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  backface-visibility: hidden;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  border-radius: 10px; /* Ensures the rounded corners are consistent */
-  text-align: center;
-  overflow: hidden; /* Ensure no overflow of text */
-}
-
-.card-back {
-  background-color: #f1f1f1;
-  color: #333;
-  transform: rotateY(180deg);
 }
 
 </style>
