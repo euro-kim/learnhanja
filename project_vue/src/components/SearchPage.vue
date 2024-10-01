@@ -363,7 +363,7 @@
         </ul> 
       </div>
     <!-- Related Words -->
-      <div v-if="selected_item !== ''" class="div-container">
+      <div v-if="selected_item !== '' && selected_item.制字=='형성' " class="div-container">
         <a1>소리가 비슷한 한자</a1>
         <ul class="ul-five">
           <li
@@ -784,7 +784,7 @@ export default {
     },  
     RelatedData() {
       const target = this.selected_item;
-      if (!this.selected_item ) {
+      if (!target || target==''||target.制字!='형성') {
         return []; // Return an empty array if no results
       }
       // Filter the data based on the target
