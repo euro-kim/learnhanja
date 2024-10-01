@@ -363,7 +363,7 @@
         </ul> 
       </div>
     <!-- Related Words -->
-      <div v-if="selected_item !== '' && selected_item.制字=='형성' " class="div-container">
+      <div v-if="selected_item !== '' " class="div-container">
         <a1>소리가 비슷한 한자</a1>
         <ul class="ul-five">
           <li
@@ -784,18 +784,25 @@ export default {
     },  
     RelatedData() {
       const target = this.selected_item;
-      if (!target || target==''||target.制字!='형성') {
-        return []; // Return an empty array if no results
+
+      // Return an empty array if target is invalid or doesn't meet the conditions
+      if (!target) {
+        return []; 
       }
-      // Filter the data based on the target
-      const filteredData = this.allData.filter(item =>
-        item.聲.toLowerCase().includes(target.聲部.toLowerCase())
-      );
+
+      // Filter the data based on the target, only applying each filter if the target value is not an empty string
+      const filteredData = this.allData.filter(item => {
+        const matches聲部 = target.聲部 !== '' ? item.聲.toLowerCase().includes(target.聲部.toLowerCase()) : false;
+        const matches聲 = target.聲 !== '' ? item.聲.toLowerCase().includes(target.聲.toLowerCase()) : false;
+        const matchesKr = target.kr !== '' ? item.聲.toLowerCase().includes(target.kr.toLowerCase()) : false;
+
+        // Include the item if it matches any one of the applicable filters (OR logic)
+        return matches聲部 || matches聲 || matchesKr;
+      });
 
 
-      // Call the sortLogic method to sort the filtered results
+      // Call the sortMethod to sort the filtered results
       return this.sortMethod(filteredData);
-
     },
 
     HSKData() {
