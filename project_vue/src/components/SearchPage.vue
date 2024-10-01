@@ -363,20 +363,23 @@
         </ul> 
       </div>
     <!-- Related Words -->
-      <!-- <div v-if="searched_item !== '' && RelatedData !=null" class="div-container">
-        <a1>관련 한자</a1>
+      <div v-if="selected_item !== ''" class="div-container">
+        <a1>소리가 비슷한 한자</a1>
         <ul class="ul-five">
           <li
             v-for="element in RelatedData"
-            :key="element.한자"
+            :key="element.kr"
             @click="showPanel(element)"
           >
-            <span class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
-            <span class="span-word">{{ element.kr }}</span>
-            <span class="span-meaning-sound">{{ 훈음(element).join('\n')}}</span>
+            <span v-if="checkbox_active.includes('급수')" class="span-level">{{ element["읽기"] }} {{element["쓰기"]}}</span>
+            <span class="span-word" >{{ element.kr }}</span>
+            <span v-if="checkbox_active.includes('훈음')" class="span-meaning-sound">{{ 훈음(element).join(', ') }}</span>
+            <span v-if="checkbox_active.includes('중국음')" class="span-meaning-sound">{{ pinyin(element).join(', ') }}</span>
+            <span v-if="checkbox_active.includes('일본음')" class="span-meaning-sound">{{ element.音読み.join(', ') }}</span>
+            <span v-if="checkbox_active.includes('일본훈')" class="span-meaning-sound">{{ element.訓読み.join(', ') }}</span>
           </li>
         </ul>
-      </div> -->
+      </div>
       
       <!-- Popup Panel -->
       <div v-if="clicked_item" class="div-popup-panel">
@@ -660,7 +663,56 @@ export default {
         this.selected_item = '';
         this.selected_string=input;
       }
+    },
+    sortMethod(searchResults) {
+      if (!searchResults || searchResults.length === 0) {
+        return []; // Return an empty array if no results
+      }
+
+      const criterium = this.sortby_options.find(option => option.text === this.sortby_active).value;
+
+      // Define the consonant order
+      const consonantOrder = ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's'];
+
+      return searchResults.sort((a, b) => {
+        // If sorting by pinyin, apply custom consonant and vowel logic
+        if (criterium === '사성음') {
+          const aConsonant = a.声[0] ? a.声[0].toString().toLowerCase() : '';
+          const bConsonant = b.声[0] ? b.声[0].toString().toLowerCase() : '';
+
+          const aVowel = a.韵[0] ? a.韵[0].toString().toLowerCase() : '';
+          const bVowel = b.韵[0] ? b.韵[0].toString().toLowerCase() : '';
+
+          const aTone = a.tones[0] ? parseInt(a.tones[0]) : 0;
+          const bTone = b.tones[0] ? parseInt(b.tones[0]) : 0;
+
+          // Compare consonants first
+          if (`${aVowel}${aConsonant}` === `${bVowel}${bConsonant}`) {
+            return aTone - bTone;
+          }
+
+          if (aConsonant === bConsonant) {
+            return aVowel.localeCompare(bVowel);
+          }
+          return consonantOrder.indexOf(aConsonant) - consonantOrder.indexOf(bConsonant);
+        }
+
+        let aValue = '';
+        let bValue = '';
+        // For other criteria, use default sorting
+        if (criterium === '음' || criterium === '音読み') {
+          aValue = a[criterium][0] ? a[criterium][0].toString().toLowerCase() : '';
+          bValue = b[criterium][0] ? b[criterium][0].toString().toLowerCase() : '';
+        } else {
+          aValue = a[criterium] ? a[criterium].toString().toLowerCase() : '';
+          bValue = b[criterium] ? b[criterium].toString().toLowerCase() : '';
+        }
+
+        return aValue.localeCompare(bValue);
+      });
     }
+
+
   },
 
 
@@ -720,72 +772,32 @@ export default {
       });
     },
     SortLogic() {
-      const searchResults = this.FilterLogic;
+      const searchResults = this.FilterLogic; // Assuming FilterLogic is already defined
+
+      // Filter the data
       if (!searchResults || searchResults.length === 0) {
         return []; // Return an empty array if no results
       }
 
-      const criterium = this.sortby_options.find(option => option.text === this.sortby_active).value;
-
-      // Define the consonant order
-      const consonantOrder = ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's'];
-
-      return searchResults.sort((a, b) => {
-        // If sorting by pinyin, apply custom consonant and vowel logic
-        if (criterium === '사성음') {
-          const aConsonant = a.声[0] ? a.声[0].toString().toLowerCase() : '';
-          const bConsonant = b.声[0] ? b.声[0].toString().toLowerCase() : '';
-
-          const aVowel = a.韵[0] ? a.韵[0].toString().toLowerCase() : '';
-          const bVowel = b.韵[0] ? b.韵[0].toString().toLowerCase() : '';
-
-          const aTone = a.tones[0] ? parseInt(a.tones[0]) : 0;
-          const bTone = b.tones[0] ? parseInt(b.tones[0]) : 0;
-          
-          // Compare consonants first
-          if (`${aVowel}${aConsonant}` === `${bVowel}${bConsonant}`) {
-            return aTone - bTone;
-          }
-
-          if (aConsonant === bConsonant) {
-            return aVowel.localeCompare(bVowel);
-          }
-          return consonantOrder.indexOf(aConsonant) - consonantOrder.indexOf(bConsonant);
-        }
-        
-        let aValue=''
-        let bValue=''
-        // For other criteria, use default sorting
-        if (criterium === '음' || criterium === '音読み') {
-          aValue = a[criterium][0] ? a[criterium][0].toString().toLowerCase() : '';
-          bValue = b[criterium][0] ? b[criterium][0].toString().toLowerCase() : '';
-        }
-        else {
-          aValue = a[criterium] ? a[criterium].toString().toLowerCase() : '';
-          bValue = b[criterium] ? b[criterium].toString().toLowerCase() : '';
-        }
-
-        if (aValue < bValue) {
-          return -1;
-        }
-        if (aValue > bValue) {
-          return 1;
-        }
-        return 0;
-      });
-    },
-
+      // Call the sortLogic method to sort the filtered results
+      return this.sortMethod(searchResults);
+    },  
     RelatedData() {
-      const target = this.selected_item
-      if (target !== '' && target.制字 == '형성' ) {
-          return this.allData.filter(item =>
-            item.聲部.toLowerCase().includes(target.聲部)
-          );
-        }
-      else {
-        return null;
+      const target = this.selected_item;
+      if (!this.selected_item ) {
+        return []; // Return an empty array if no results
       }
+      // Filter the data based on the target
+      const filteredData = this.allData.filter(item =>
+        item.聲.toLowerCase().includes(target.聲部.toLowerCase())
+      );
+
+
+      // Call the sortLogic method to sort the filtered results
+      return this.sortMethod(filteredData);
+
     },
+
     HSKData() {
       const target=this.selected_item    
       if (target) {
