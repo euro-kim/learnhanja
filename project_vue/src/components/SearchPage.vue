@@ -41,27 +41,26 @@
         <table  class="info-table">
           <tbody>
             <tr>
-              <th>한국어문회급수</th>
-              <td>{{ selected_item["읽기"] }} {{ selected_item["쓰기"] }}</td>
+              <th>한국어문회 읽기급수</th>
+              <td>{{ selected_item["읽기"] }}</td>
+            </tr>
+            <tr>
+              <th>한국어문회 쓰기급수</th>
+              <td>{{ selected_item["쓰기"] }}</td>
             </tr>
             <tr>
               <th>중국 통용규범한자표 급수</th>
-              <td v-if="selected_item['通用規範'] !==0">{{ selected_item["级"] }}级</td>
-              <td v-else>-</td>
-            </tr>
-            <tr >
-              <th> 일본 상용한자</th>
-              <td v-if="selected_item['常用'] !== 0">등재</td>
-              <td v-else>미등재</td>
-            </tr>
-            <tr>
-              <th>일본 漢字検定 급수</th>
-              <td v-if="selected_item['漢字検定'] !== '[]'">{{ selected_item["漢字検定"] }}</td>
+              <td v-if="selected_item['通用'] !==0">{{ selected_item["级"] }}级</td>
               <td v-else>-</td>
             </tr>
             <tr>
-              <th>JIS 수준</th>
-              <td v-if="selected_item['JIS水準'] !== '[]'">{{ selected_item["JIS水準"] }}</td>
+              <th>일본 検定 급수</th>
+              <td v-if="selected_item['検定'] !== '[]'">{{ selected_item["検定"] }}</td>
+              <td v-else>-</td>
+            </tr>
+            <tr>
+              <th>일본 JIS 수준</th>
+              <td v-if="selected_item['JIS'] !== '[]'">{{ selected_item["JIS"] }}</td>
               <td v-else>-</td>
             </tr>
           </tbody>
@@ -75,39 +74,23 @@
             </div>
                   <!-- 모양 정보 -->
             <div class="card-back">
+              <h4>등재번호</h4>
               <table class="card-table">
                 <tr>
-                  <th>제자원리</th>
-                  <td>{{selected_item.制字}}</td>
+                  <th>한국어문회</th>
+                  <td>{{selected_item.어문회}}</td>
                 </tr>
                 <tr>
-                  <th>획수</th>
-                  <td>{{selected_item.畫數}}</td>
+                  <th>대만 표준국자자체표</th>
+                  <td>{{selected_item.標準}}</td>
                 </tr>
                 <tr>
-                  <th>부수</th>
-                  <td>{{selected_item.部首}}</td>
+                  <th>중국 통용규범한자표</th>
+                  <td>{{selected_item.通用}}</td>
                 </tr>
-                <tr v-if="selected_item.聲部 !== ''">
-                  <th>성부</th>
-                  <td>{{selected_item.聲部}}</td>
-                </tr>
-              </table>
-              <table class="card-table">
-                <caption class="table-caption" v-if="selected_item.jp !== '' || selected_item.cn !== '' || selected_item.tw !== ''">
-                  이체자
-                </caption>
-                <tr v-if="selected_item.jp !== ''">
-                  <th>일본자</th>
-                  <td>{{selected_item.jp}}</td>
-                </tr>
-                <tr v-if="selected_item.cn !== ''">
-                  <th>중국자</th>
-                  <td>{{selected_item.cn}}</td>
-                </tr>
-                <tr v-if="selected_item.tw !== ''">
-                  <th>대만자</th>
-                  <td>{{selected_item.tw}}</td>
+                <tr>
+                  <th>일본 상용한자표</th>
+                  <td>{{selected_item.常用}}</td>
                 </tr>
               </table>
             </div>
@@ -135,6 +118,40 @@
             <tr>
               <th>일본음</th>
               <td>{{ (selected_item['音読み']).join(', ') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="shape-container">
+        <table class="shape-table property">
+          <thead>
+            <tr>
+              <th v-for="(shape_property_header, index) in shape_property_headers" :key="index">
+                {{ shape_property_header }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td v-for="(shape_property_datum, index) in shape_property_data" :key="index">
+                {{ shape_property_datum }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="shape-table variant">
+          <thead>
+            <tr>
+              <th v-for="(shape_variant_header, index) in shape_variant_headers" :key="index">
+                {{ shape_variant_header }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td v-for="(shape_variant_datum, index) in shape_variant_data" :key="index">
+                {{ shape_variant_datum }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -512,6 +529,9 @@ export default {
       //individual words
       activeTab: 'HSK', // Default active tab
       isFlipped: false,
+      // Hanja Shapes
+      shape_property_headers:['획수','제자원리','부수','성부'],
+      shape_variant_headers:['한국자','대만자','중국자','일본자']
     };
   },
 
@@ -858,6 +878,22 @@ export default {
         return null;
       }
     },
+    shape_variant_data() {
+      return [
+        this.selected_item.kr,
+        this.selected_item.tw,
+        this.selected_item.cn,
+        this.selected_item.jp,
+      ];
+    },
+    shape_property_data() {
+      return [
+        this.selected_item.畫數,
+        this.selected_item.制字+'문자',
+        this.selected_item.部首,
+        this.selected_item.聲部,
+      ];
+    }
   }  
 };
 
@@ -868,6 +904,7 @@ export default {
 @import "../assets/css/searchresult.css";
 @import "../assets/css/toggle.css";
 @import "../assets/css/dropdown.css";
+@import "../assets/css/shape-table.css";
 @import "../assets/css/info-table.css";
 @import "../assets/css/related-table.css";
 @import "../assets/css/exposition.css";

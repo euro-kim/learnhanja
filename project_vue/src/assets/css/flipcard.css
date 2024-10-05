@@ -53,4 +53,16 @@
     color: #333;
     transform: rotateY(180deg);
   }
+
+  /* Table header styling */
+  .card-table th {
+    font-size: 13px;
+    text-align: left;
+    font-weight: bold;
+  }
   
+  /* Table body styling */
+  .card-table td {
+    font-size: 13px;
+    border-bottom: 1px solid #ddd; /* Light border for separation */
+  }

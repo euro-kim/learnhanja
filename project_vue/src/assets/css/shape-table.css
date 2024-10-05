@@ -1,0 +1,48 @@
+.shape-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  padding-top: 20px; /* Adds space above the tables to prevent overlap */
+}
+
+.shape-table {
+  width: 45%;
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Modern shadow */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden;
+  background-color: #f9fbfc; /* Light background for contrast */
+}
+
+.shape-table th, .shape-table td {
+  padding: 6px 10px; /* Reduced padding to decrease cell height */
+  border: 1px solid #e0e0e0; /* Subtle border */
+  text-align: center; /* Centered text */
+  color: #333; /* Default text color */
+  font-size: 0.9rem; /* Decreased font size */
+}
+
+.shape-table th {
+  background-color: transparent; /* Transparent background */
+  font-weight: bold;
+  text-transform: uppercase; /* Modern text styling */
+  letter-spacing: 1px; /* Slightly increase spacing for modern look */
+  text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for modern depth */
+}
+
+.shape-table td {
+  background-color: #fff; /* White background for data cells */
+}
+
+.shape-table tbody tr:nth-child(odd) td {
+  background-color: #f1f8ff; /* Subtle bluish tone for alternating rows */
+}
+
+/* Adding specific spacing between the tables */
+.property {
+  margin-right: 5%;
+}
+
+.variant {
+  margin-left: 5%;
+}
