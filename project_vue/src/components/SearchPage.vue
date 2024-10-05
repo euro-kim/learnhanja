@@ -41,11 +41,11 @@
         <table  class="info-table">
           <tbody>
             <tr>
-              <th>한국어문회 읽기급수</th>
+              <th>한국 한국어문회 읽기급수</th>
               <td>{{ selected_item["읽기"] }}</td>
             </tr>
             <tr>
-              <th>한국어문회 쓰기급수</th>
+              <th>한국 한국어문회 쓰기급수</th>
               <td>{{ selected_item["쓰기"] }}</td>
             </tr>
             <tr>
@@ -77,7 +77,7 @@
               <h4>등재번호</h4>
               <table class="card-table">
                 <tr>
-                  <th>한국어문회</th>
+                  <th>한국 한국어문회</th>
                   <td>{{selected_item.어문회}}</td>
                 </tr>
                 <tr>
