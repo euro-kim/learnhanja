@@ -1,14 +1,13 @@
 /* toggle */
 .toggle-container {
-    position: absolute;
-    left: 90%; /* Position 70% from the left */
-    transform: translateX(-50%); /* Center the container horizontally if needed */
-    text-align: right;
-    align-items: center;
-    gap: 15px;
+    display: flex;
+    gap: 10px;
     font-family: Arial, sans-serif;
+    margin:0;
   }
-  
+  .toggle-container p {
+    margin: 0; /* Remove default margin for proper alignment */
+  }
   .switch {
     position: relative;
     display: inline-block;

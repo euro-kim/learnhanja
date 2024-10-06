@@ -1,18 +1,21 @@
-// src/router/index.js
-import { createRouter, createWebHistory } from 'vue-router'
-import SearchPage from '../components/SearchPage.vue'
-import InfoPage from '../components/InfoPage.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import SearchPage from '../views/SearchPage.vue'; // Import the App component (which includes SearchBar and SearchResult)
 
 const routes = [
-  { path: '/', name: 'SearchPage', component: SearchPage },
-  { path: '/info', name: 'InfoPage', component: InfoPage },
-  { path: '/:pathMatch(.*)*', redirect: '/' }  // Redirect to SearchPage for any unknown paths
+  {
+    path: '/',
+    name: 'Home',
+    component: SearchPage // Render the App component at the root path
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/' // Redirect any unknown paths to the root
+  }
 ];
 
 const router = createRouter({
-  history: createWebHistory(),  // Use HTML5 History mode
+  history: createWebHistory(), // Use HTML5 History mode
   routes
 });
 
 export default router;
-
