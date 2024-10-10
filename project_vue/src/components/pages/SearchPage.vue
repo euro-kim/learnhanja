@@ -35,11 +35,11 @@
   
   <script>
   
-  import SearchBar from '../components/SearchBar.vue'
-  import SearchOption from '../components/SearchOption.vue'
-  import SearchResult from '../components/SearchResult.vue'
-  import SearchInfo from '../components/SearchInfo.vue'
-  import SearchRelated from '../components/SearchRelated.vue'
+  import SearchBar from '../SearchBar.vue'
+  import SearchOption from '../SearchOption.vue'
+  import SearchResult from '../SearchResult.vue'
+  import SearchInfo from '../SearchInfo.vue'
+  import SearchRelated from '../SearchRelated.vue'
   export default {
     name: 'SearchPage',
     components: {

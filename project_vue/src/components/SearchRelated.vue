@@ -41,7 +41,7 @@
   </template>
   
   <script>
-  import jsonData from '../assets/json/hanja.json';
+  import jsonData from '../data/hanja.json';
   
   export default {
     props:{
@@ -321,17 +321,17 @@
   };
 </script>
   <style>
-    @import "../assets/css/checkbox.css";
-    @import "../assets/css/searchbar.css";
-    @import "../assets/css/searchresult.css";
-    @import "../assets/css/toggle.css";
-    @import "../assets/css/dropdown.css";
-    @import "../assets/css/shape-table.css";
-    @import "../assets/css/info-table.css";
-    @import "../assets/css/related-table.css";
-    @import "../assets/css/exposition.css";
-    @import "../assets/css/popup.css";
-    @import "../assets/css/flipcard.css";
+    @import "../styles/checkbox.css";
+    @import "../styles/searchbar.css";
+    @import "../styles/searchresult.css";
+    @import "../styles/toggle.css";
+    @import "../styles/dropdown.css";
+    @import "../styles/shape-table.css";
+    @import "../styles/info-table.css";
+    @import "../styles/related-table.css";
+    @import "../styles/exposition.css";
+    @import "../styles/popup.css";
+    @import "../styles/flipcard.css";
   </style>
   
 <style scoped>

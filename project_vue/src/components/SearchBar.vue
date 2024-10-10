@@ -84,7 +84,7 @@
   
   </script>
   <style>
-  @import "../assets/css/searchbar.css";
+  @import "../styles/searchbar.css";
   </style>
 
   <style lang="css" scoped>

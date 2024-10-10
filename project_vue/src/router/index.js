@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import SearchPage from '../views/SearchPage.vue'; // Import the App component (which includes SearchBar and SearchResult)
+import SearchPage from '../components/pages/SearchPage.vue'; // Import the App component (which includes SearchBar and SearchResult)
 
 const routes = [
   {
