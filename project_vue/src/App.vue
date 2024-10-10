@@ -6,6 +6,10 @@
 
 
 <style>
+html, body {
+    overscroll-behavior: none; /* Prevents the bounce effect */
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

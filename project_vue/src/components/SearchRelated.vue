@@ -231,35 +231,6 @@
       },
     },
     computed: {
-      SearchLogic() {
-        const searchTerm = this.searched_item.toLowerCase();
-
-        // If no filters are active, return null (or an empty array if preferred)
-        if (this.searchby_active.length === 0) {
-          console.log('no active filter');
-          return null; // or return [];
-        }
-        console.log('Active Filter',this.searchby_active);
-        // Apply the filters with OR logic (using `some`)
-        return this.allData.filter(item => {
-          return this.searchby_active.some(filter => {
-            switch (filter) {
-              case '한자':
-                return [item.kr, item.jp, item.tw, item.cn].some(prop => 
-                  prop.toLowerCase().includes(searchTerm)
-                );
-              case '훈':
-                return item.훈.join(',').toLowerCase().includes(searchTerm);
-              case '음':
-                return item.음.join(',').toLowerCase().includes(searchTerm);
-              case '부수':
-                return item.部首.toLowerCase().includes(searchTerm);
-              case '성부':
-                return item.聲.toLowerCase().includes(searchTerm);
-            }
-          });
-        });
-      },
       FilterLogic() {
         const dataList = this.SearchLogic;
 
@@ -300,19 +271,24 @@
         if (Object.keys(this.selected_item).length === 0) {
           return [];
         }
-      const target = this.selected_item;
-      console.log('Searching Related word for',target);
+        const target = this.selected_item;
+        console.log('Searching Related word for',target);
 
-      // Filter the data based on the target, only applying each filter if the target value is not an empty string
-      const filteredData = this.allData.filter(item => {
-        const matches聲部 = target.聲部 !== '' ? item.聲.toLowerCase().includes(target.聲部.toLowerCase()) : false;
-        const matches聲 = target.聲 !== '' ? item.聲.toLowerCase().includes(target.聲.toLowerCase()) : false;
-        const matchesKr = target.kr !== '' ? item.聲.toLowerCase().includes(target.kr.toLowerCase()) : false;
-
-        // Include the item if it matches any one of the applicable filters (OR logic)
-        return matches聲部 || matches聲 || matchesKr;
-      });
-
+        // Filter the data based on the target, only applying each filter if the target value is not an empty string
+        const filteredData = this.allData.filter(item => {
+          //A->B: Search look if B includes A
+          // 단어->단어
+          const matches0= target.kr !== '' ? item.kr.toLowerCase().includes(target.kr.toLowerCase()) : false;
+          // 단어->성부(들)
+          const matches1 = target.kr !== '' ? item.聲.toLowerCase().includes(target.kr.toLowerCase()) : false;
+          // 성부->단어
+          const matches2= target.聲部 !== '' ? item.kr.toLowerCase().includes(target.聲部.toLowerCase()) : false;
+          // 성부->성부(들)
+          const matches3 = target.聲部 !== '' ? item.聲.toLowerCase().includes(target.聲部.toLowerCase()) : false;
+          
+          // Include the item if it matches any one of the applicable filters (OR logic)
+          return matches0 || matches1 || matches2||matches3;
+        });
 
       // Call the sortMethod to sort the filtered results
       return this.sortMethod(filteredData);
@@ -389,8 +365,6 @@ img {
   margin: 0; /* Remove default margin */
   text-decoration: none; /* Remove underline from the link */
 }
-
-
 
 
 h2, h3 {
