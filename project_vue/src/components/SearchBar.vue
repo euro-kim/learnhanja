@@ -17,7 +17,7 @@
             :key="filter.key"
             class="button-searchby"
             :class="{ active: searchby_active.includes(filter.key) }"
-            @click="toggleFilter(filter.key)"
+            @click="click_searchby(filter.key)"
           >
             {{ filter.label }}
           </button>
@@ -67,6 +67,14 @@
       }
     },
     methods:{
+      click_searchby(key) {
+        const index = this.searchby_active.indexOf(key);
+        if (index === -1) {
+          this.searchby_active.push(key); // Add the filter if not active
+        } else {
+          this.searchby_active.splice(index, 1); // Remove the filter if already active
+        }
+      },
       performSearch() {
         if (this.user_input.trim() !== '') {
           console.log('Searching for:', this.user_input);

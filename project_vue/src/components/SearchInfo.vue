@@ -8,11 +8,13 @@
             <tbody>
               <tr>
                 <th>한국 한국어문회 읽기급수</th>
-                <td>{{ selected_item["읽기"] }}</td>
+                <td v-if="selected_item['읽기']">{{ selected_item["읽기"] }}</td>
+                <td v-else>-</td>
               </tr>
               <tr>
                 <th>한국 한국어문회 쓰기급수</th>
-                <td>{{ selected_item["쓰기"] }}</td>
+                <td v-if="selected_item['쓰기']">{{ selected_item["쓰기"] }}</td>
+                <td v-else>-</td>
               </tr>
               <tr>
                 <th>중국 통용규범한자표 급수</th>
@@ -21,12 +23,12 @@
               </tr>
               <tr>
                 <th>일본 検定 급수</th>
-                <td v-if="selected_item['検定'] !== '[]'">{{ selected_item["検定"] }}</td>
+                <td v-if="selected_item['検定']">{{ selected_item["検定"] }}</td>
                 <td v-else>-</td>
               </tr>
               <tr>
                 <th>일본 JIS 수준</th>
-                <td v-if="selected_item['JIS'] !== '[]'">{{ selected_item["JIS"] }}</td>
+                <td v-if="selected_item['JIS']">{{ selected_item["JIS"] }}</td>
                 <td v-else>-</td>
               </tr>
             </tbody>
@@ -67,23 +69,28 @@
             <tbody>
               <tr>
                 <th>한국훈</th>
-                <td>{{ (selected_item.훈).join(', ')}} </td>
+                <td v-if="selected_item.훈">{{ (selected_item.훈).join(', ')}} </td>
+                <td v-else>-</td>
               </tr>
               <tr>
                 <th>한국음</th>
-                <td>{{ (selected_item.음).join(', ')}} </td>
+                <td v-if="selected_item.음">{{ (selected_item.음).join(', ')}} </td>
+                <td v-else>-</td>
               </tr>
               <tr>
                 <th>사성음</th>
-                <td>{{ pinyin(selected_item).join(', ') }}</td>
+                <td v-if="pinyin(selected_item)">{{ pinyin(selected_item).join(', ') }}</td>
+                <td v-else>-</td>
               </tr>
               <tr>
                 <th>일본훈</th>
-                <td>{{ (selected_item["訓読み"]).join(', ') }}</td>
+                <td v-if="selected_item['訓読み'].join(', ') ">{{ (selected_item["訓読み"]).join(', ') }}</td>
+                <td v-else>-</td>
               </tr>
               <tr>
                 <th>일본음</th>
-                <td>{{ (selected_item['音読み']).join(', ') }}</td>
+                <td v-if="(selected_item['音読み']).join(', ')">{{ (selected_item['音読み']).join(', ') }}</td>
+                <td v-else>-</td>
               </tr>
             </tbody>
           </table>
