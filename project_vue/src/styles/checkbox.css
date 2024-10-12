@@ -1,8 +1,70 @@
 /* Checkbox */
 .checkbox-group {
-    display: flex;
-    flex-direction: row; /* Arrange checkboxes horizontally */
-  }
-  .checkbox-label {
-    margin-right: 20px; /* Spacing between checkboxes */
-  }
+  display: flex;
+  flex-direction: row; /* Arrange checkboxes horizontally */
+  align-items: center; /* Center checkboxes vertically */
+  margin: 20px 0; /* Spacing around the group */
+}
+
+.checkbox-label {
+  position: relative; /* For positioning custom checkbox */
+  margin-right: 30px; /* Spacing between checkboxes */
+  font-size: 16px; /* Adjust font size */
+  color: #444; /* Slightly darker text color */
+  cursor: pointer; /* Change cursor on hover */
+  transition: color 0.3s, transform 0.3s; /* Smooth transition for text color */
+}
+
+/* Hide the default checkbox */
+.checkbox {
+  display: none; /* Hide the default checkbox */
+}
+
+/* Style for the custom checkbox */
+.checkbox + .checkbox-custom {
+  width: 25px; /* Custom checkbox width */
+  height: 25px; /* Custom checkbox height */
+  background-color: #f0f0f0; /* Light gray background */
+  border: 2px solid #ccc; /* Border color */
+  border-radius: 50%; /* Rounded shape */
+  display: inline-block; /* Allow inline block for custom checkbox */
+  position: relative; /* Position for pseudo-elements */
+  transition: background-color 0.3s, border-color 0.3s, transform 0.3s; /* Transition effects */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+}
+
+/* Checked state styles */
+.checkbox:checked + .checkbox-custom {
+  background: linear-gradient(145deg, #007BFF, #0056b3); /* Blue gradient when checked */
+  border-color: #004085; /* Darker border when checked */
+  transform: scale(1.1); /* Slightly enlarge */
+}
+
+/* Pseudo-element for checkmark */
+.checkbox:checked + .checkbox-custom::after {
+  content: ''; /* Create a checkmark */
+  position: absolute; /* Position it */
+  left: 8px; /* Adjust position */
+  top: 3px; /* Adjust position */
+  width: 4px; /* Checkmark width */
+  height: 10px; /* Checkmark height */
+  border: solid white; /* Checkmark color */
+  border-width: 0 2px 2px 0; /* Checkmark shape */
+  transform: rotate(45deg); /* Rotate to form checkmark */
+}
+
+/* Hover effect for labels */
+.checkbox-label:hover {
+  color: #000; /* Darker text color on hover */
+  transform: scale(1.05); /* Slightly enlarge label */
+}
+
+/* Focus effect for accessibility */
+.checkbox:focus + .checkbox-custom {
+  outline: 2px solid #007BFF; /* Outline for focus */
+}
+
+/* Transition for the custom checkbox */
+.checkbox-custom {
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Add smooth transition */
+}

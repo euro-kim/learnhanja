@@ -263,7 +263,7 @@
       };
     },
   
-  
+    
     watch: {
       search(newVal) {
         if (newVal.length === 0) {
@@ -426,64 +426,6 @@
 
 
 <style scoped>
-.heading {
-  display: flex; /* Flexbox to center the logo */
-  align-items: center;
-  justify-content: center;
-  height: 200px; /* Initial height to accommodate the full-sized logo */
-  transition: height 0.3s ease; /* Smooth transition for height */
-  padding: 0; /* Remove any default padding */
-  margin: 0; /* Remove any default margin */
-
-}
-/* Adjusted styles when the logo is folded */
-.folded-heading {
-  height: 10px; /* Reduced height when the logo is smaller */
-}
-/* Default styles for all <img> elements */
-img {
-  max-width: 100%; /* Ensures images scale properly within their div-containers */
-  height: auto; /* Maintain aspect ratio */
-  display: block; /* Removes any inline spacing */
-  padding-bottom: 0;
-  margin: 0; /* Remove any default margin */
-}
-
-/* Specific styles for the logo */
-.logo {
-  height: 9vw; /* Responsive height relative to the viewport width */
-  width: auto; /* Maintain aspect ratio */
-  max-height: 1000px; /* Maximum height of the image */
-  /*margin-right: 10px; /* Space between the image and the text */
-  transition: transform 0.3s ease, width 0.3s ease; /* Smooth transition when resizing */
-}
-
-@media (max-width: 768px) {
-  .logo {
-  height: 18vw; /* Responsive height relative to the viewport width */
-  width: auto; /* Maintain aspect ratio */
-  }
-}
-
-/* Styles applied when the logo is folded (e.g., when search input is provided) */
-.folded {
-  transform: scale(0.3); /* Scale down the logo to 50% */
-}
-
-/* New styles for the <a> tag */
-.logo-link {
-  display: flex; /* Flexbox to ensure the link wraps around the content */
-  align-items: center; /* Center vertically */
-  justify-content: center; /* Center horizontally */
-  height: 100%; /* Match height of the div-container */
-  padding: 0; /* Remove default padding */
-  margin: 0; /* Remove default margin */
-  text-decoration: none; /* Remove underline from the link */
-}
-
-
-
-
 h2, h3 {
   margin: 0.5rem 0;
 }
@@ -547,62 +489,6 @@ li:hover {
   transform: translateY(0px);
 }
 
-/* <span> */
-.span-filter-info {
-  padding: 7px 14px;
-  background-color: transparent;
-  font-size: 10px; 
-}
-.span-level {
-  font-size: 13px;
-  display: block;
-  font-weight:lighter;
-  color: #333;
-}
-
-.span-word {
-  font-size: 30px;
-  display: block;
-  font-weight: bold;
-  color: #333;
-}
-.span-meaning-sound {
-  display: block;
-  color: #666;
-}
-
-/* <button> */
-.blue-button {
-  margin-top: 10px;
-  font-size: 18px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: 5px;
-}
-
-
-.button-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  color: #0056b3;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: color 0.5s ease-in-out, border-bottom 0.5s ease-in-out;
-}
-.button-close:hover {
-  background-color: #3464d4;
-  color:#fff
-}
-
 /* <div> */
   .div-container {
   position: relative;
@@ -630,38 +516,6 @@ li:hover {
 .p-label{
   font-size: 12px
 }
-.p-letter{
-  cursor: pointer;
-  margin: auto;
-  border-radius: 3px; /* Adjust the value to control the roundness */
-  font-size: 25px;
-  transition: background-color 0.3s, transform 0.3s;
-}
-.p-letter:hover{
-  background-color: #f0f0f0;
-  transform: translateY(-2px) scale(1.05) rotate(-1deg);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
-
-/* <h1> */
-.h1-word {
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 8px; /* Adjust the value to control the roundness */
-  transition: background-color 0.3s, transform 0.3s;
-  text-align: center;
-  cursor: pointer;
-  font-size: 50px;
-  display: inline-block; /* Makes the width match the text size */
-}
-
-.h1-word:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px) scale(1.05) rotate(-1deg);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
 
 .h1-한자{
   font-size: 70px;
@@ -678,13 +532,6 @@ li:hover {
 
 .h5-context{
   font-size: small;
-}
-
-
-
-/* <audio> */
-  audio {
-  margin-top: 10px;
 }
 
 </style>

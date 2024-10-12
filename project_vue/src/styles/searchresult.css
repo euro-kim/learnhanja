@@ -1,4 +1,4 @@
-.ul-five {
+.searchresult-ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
@@ -9,25 +9,25 @@
   
   /* Add a responsive design */
   @media (max-width: 1200px) {
-    .ul-five {
+    .searchresult-ul {
       grid-template-columns: repeat(4, 1fr); /* 4 columns for medium screens */
     }
   }
   
   @media (max-width: 900px) {
-    .ul-five {
+    .searchresult-ul {
       grid-template-columns: repeat(3, 1fr); /* 3 columns for smaller screens */
     }
   }
   
   @media (max-width: 600px) {
-    .ul-five {
+    .searchresult-ul {
       grid-template-columns: repeat(2, 1fr); /* 2 columns for very small screens */
     }
   }
   
   @media (max-width: 400px) {
-    .ul-five {
+    .searchresult-ul {
       grid-template-columns: 1fr; /* 1 column for extra small screens */
     }
   }

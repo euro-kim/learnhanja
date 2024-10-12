@@ -150,9 +150,7 @@ img {
   margin: 0; /* Remove default margin */
   text-decoration: none; /* Remove underline from the link */
 }
-
-
-  </style>
+</style>
   
  
   
