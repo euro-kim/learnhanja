@@ -2,7 +2,7 @@
     <div>
       <!-- Selection -->
       <div v-if="show_searchinfo==true" class="div-container">
-        <div class="table-container">
+        <div style="display: flex;gap: 20px;">
           <!-- 급수 -->
           <table  class="info-table">
             <tbody>
@@ -37,8 +37,16 @@
           <div class="card-container" @click="toggleFlip">
             <div :class="['card', { flipped: isFlipped }]">
               <div class="card-front">
-                <h1 class="h1-한자">{{ selected_item.kr }}</h1>
-                <h2 class="h2-훈음">{{ 훈음(selected_item).join('\n') }}</h2>
+                <h1 
+                  style="font-size: 70px;transition: background-color 0.3s, transform 0.3s; display: inline-block;"
+                >
+                  {{ selected_item.kr }}
+                </h1>
+                <h2 
+                  style="margin: 0.5rem 0;font-size: clamp(0.8rem, 2.5vw, 1.5rem);width: 100%;text-align: center; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;"
+                >
+                  {{ 훈음(selected_item).join('\n') }}
+                </h2>
               </div>
                     <!-- 모양 정보 -->
               <div class="card-back">
@@ -46,19 +54,24 @@
                 <table class="card-table">
                   <tr>
                     <th>한국 한국어문회</th>
-                    <td>{{selected_item.어문회}}</td>
+                    <td v-if="selected_item.어문회==0">미등재</td>
+                    <td v-else>{{selected_item.어문회}}</td>
                   </tr>
                   <tr>
                     <th>대만 표준국자자체표</th>
-                    <td>{{selected_item.標準}}</td>
+                    <td v-if="selected_item.標準==0">미등재</td>
+                    <td v-else>{{selected_item.標準}}</td>
                   </tr>
                   <tr>
                     <th>중국 통용규범한자표</th>
-                    <td>{{selected_item.通用}}</td>
+                    <td v-if="selected_item.通用==0">미등재</td>
+                    <td v-else>{{selected_item.通用}}</td>
                   </tr>
                   <tr>
                     <th>일본 상용한자표</th>
-                    <td>{{selected_item.常用}}</td>
+                    <td v-if="selected_item.常用==0">미등재</td>
+                    <td v-else-if="selected_item.常用==-1">표외한자</td>
+                    <td v-else>{{selected_item.常用}}</td>
                   </tr>
                 </table>
               </div>
@@ -162,7 +175,7 @@
   
           <!-- <div v-if="selected_item['성어'] !== '' && activeTab === '성어'">
             <h3> 한국어문회 성어 </h3>
-            <table class="custom-table">
+            <table class="usage-table">
               <tbody>
                 <tr v-for="(row, rowIndex) in selected_item['성어'].split('\n')" :key="rowIndex">
                   <td v-for="(item, colIndex) in parseProverb(row)" :key="colIndex">{{ item }}</td>
@@ -172,7 +185,7 @@
           </div>-->
   
           <div v-if="selected_item['HSK 급수'] !== '' && activeTab === 'HSK' ">
-            <table class="custom-table">
+            <table class="usage-table">
               <thead>
                 <tr>
                   <th>HSK 급수</th>
@@ -187,9 +200,24 @@
                 <tr v-for="hskword in HSKData" :key="hskword.id"> <!-- Assuming each word has a unique id -->
                   <td>{{ hskword.HSK }}</td>
                   <td>
-                    <span v-for="(char, index) in hskword.traditional.split('')" :key="index" @click="handleCharacterClick(char)">
+                    <span 
+                      v-for="(char, index) in hskword.traditional.split('')" 
+                      :key="index" 
+                      @mouseover="updateHover($event, char); showPopup = true"
+                      @mouseleave="showPopup = false" 
+                      @click="handleCharacterClick(char)"
+                    >
                       <a href="javascript:void(0)">{{ char }}</a>
                     </span>
+                    <div 
+                      v-if="showPopup" 
+                      class="popup"
+                      :style="{ top: popupY + 'px', left: popupX + 'px', position: 'fixed' }"
+
+                    >
+                      {{this.hover_item.kr}}
+                      {{ 훈음(this.hover_item).join('\n') }}
+                    </div>
                   </td>
                   <td>{{ hskword.simplified }}</td>
                   <td>{{ hskword.pinyin }}</td>
@@ -201,7 +229,7 @@
           </div>
           
           <div v-if="selected_item['JLPT 급수'] !== '' && activeTab === 'JLPT'">
-            <table class="custom-table">
+            <table class="usage-table">
               <thead>
                 <tr>
                   <th>JLPT 급수</th>
@@ -222,8 +250,7 @@
               </tbody>
             </table>  
           </div> 
-        </div>
-        
+        </div>       
       </div>
     </div>
   </template>
@@ -259,7 +286,13 @@
         isFlipped: false,
         // Hanja Shapes
         shape_property_headers:['획수','제자원리','부수','성부'],
-        shape_variant_headers:['한국자','대만자','중국자','일본자']
+        shape_variant_headers:['한국자','대만자','중국자','일본자'],
+
+        //
+        showPopup: false,
+        popupX: 0,
+        popupY: 0,
+        hover_item:'',
       };
     },
   
@@ -330,8 +363,26 @@
           } 
         }
         this.$emit('emitted_searchinfo',{updated_selected_item: element})
-      }
+      },
+      updateHover(event, char) {
+        const offsetX = event.clientX * 0.1; // Adjust left by 10% of mouse position
+        const offsetY = event.clientY * 0.09; // Adjust above by 10% of mouse position
 
+        this.popupX = event.clientX - offsetX; // Move left
+        this.popupY = event.clientY - offsetY; // Move above and add a little extra spacing (10px)
+
+        // this.popupY = event.target.getBoundingClientRect().top + window.scrollY-(offsety)*zoomLevel/2;
+        var element = this.allData.find(item => item.kr === char);
+        if (element) {
+          this.hover_item=element;
+        } else {
+          element = this.allData.find(item => item.tw === char);
+          if (element) {
+            this.hover_item=element;
+          } 
+        }
+      }
+      
     },
   
   
@@ -404,7 +455,8 @@
           this.selected_item.部首,
           this.selected_item.聲部,
         ];
-      }
+      },
+
       
     }  
   };
@@ -417,6 +469,7 @@
   @import "../styles/toggle.css";
   @import "../styles/dropdown.css";
   @import "../styles/shape-table.css";
+  @import "../styles/usage-table.css";
   @import "../styles/info-table.css";
   @import "../styles/related-table.css";
   @import "../styles/exposition.css";
@@ -426,69 +479,6 @@
 
 
 <style scoped>
-h2, h3 {
-  margin: 0.5rem 0;
-}
-
-/* Dynamically scale the h2 text */
-.h2-훈음 {
-  margin: 0.5rem 0;
-  font-size: clamp(0.8rem, 2.5vw, 1.5rem); /* Dynamic font size scaling */
-  width: 100%; /* Ensures it takes the width of the container */
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.table-container {
-  display: flex; /* Use Flexbox to align tables horizontally */
-  gap: 20px; /* Add space between the tables */
-}
-
-
-/* Styles for the new table */
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 0.9rem; /* Smaller font size */
-  table-layout: auto; /* Allow columns to adjust based on content */
-}
-
-.custom-table td {
-  border: 1px solid #ddd;
-  padding: 6px 10px; /* Adjusted padding for better sizing */
-}
-
-.custom-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.custom-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* <li> */
-li {
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.3s;
-  text-align: center;
-  cursor: pointer;
-}
-
-li:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px);
-}
-
-.li-single:hover{
-  transform: translateY(0px);
-}
-
 /* <div> */
   .div-container {
   position: relative;
@@ -511,28 +501,28 @@ li:hover {
   content: "📗"; /* Icon to style it */
 }
 
+/* asd */
 
-/* <p> */
-.p-label{
-  font-size: 12px
+.text-container {
+  position: relative;
 }
 
-.h1-한자{
-  font-size: 70px;
-  transition: background-color 0.3s, transform 0.3s;
-  display: inline-block; /* Makes the width match the text size */
+.hover-text {
+  cursor: pointer; /* Indicate that the text is interactive */
+}
+.popup {
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: absolute; /* Ensure it follows the mouse position */
+  z-index: 1000; /* High z-index to appear above other elements */
+  white-space: nowrap; /* Prevent text from wrapping */
+  pointer-events: none; /* Prevent the popup from blocking hover events */
+  display: inline-block; /* Ensure it wraps around the content */
 }
 
-/* .h1-한자:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px) scale(1.05) rotate(-1deg);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-} */
-
-.h5-context{
-  font-size: small;
-}
 
 </style>
 

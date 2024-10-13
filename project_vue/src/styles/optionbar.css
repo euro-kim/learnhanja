@@ -1,0 +1,17 @@
+.optionbar-wrapper{
+    max-width: 800px; /* Limit the width of the container */
+    margin: auto; /* Center the container */
+    padding: 20px;
+    background-color: #fff; /* White background for the dropdown container */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    padding-top: 5px;
+    padding-bottom: 0px;
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Add a subtle border for better visibility */
+  }
+  .optionbar-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }

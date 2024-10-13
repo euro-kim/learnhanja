@@ -4,11 +4,12 @@
       <!-- Search Result -->
       <div v-if="searched_item !== '' && show_searchresult==true" class="div-container">
 
-          <ul  class="searchresult-ul">
+          <ul class="searchresult-ul">
             <li
-              v-for="element in SortLogic"
-              :key="element.id"
-              @click="showPanel(element)"
+            v-for="element in SortLogic"
+            :key="element.id"
+            @click="showPanel(element)"
+            class="searchresult-li"
             >
               <!-- 급수 -->
               <span 
@@ -342,48 +343,14 @@
   };
 </script>
   <style>
-    @import "../styles/checkbox.css";
-    @import "../styles/searchbar.css";
     @import "../styles/searchresult.css";
-    @import "../styles/toggle.css";
-    @import "../styles/dropdown.css";
     @import "../styles/shape-table.css";
-    @import "../styles/info-table.css";
-    @import "../styles/related-table.css";
-    @import "../styles/exposition.css";
     @import "../styles/popup.css";
-    @import "../styles/flipcard.css";
   </style>
   
 <style scoped>
-h2, h3 {
-  margin: 0.5rem 0;
-}
-
-/* <li> */
-li {
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.3s;
-  text-align: center;
-  cursor: pointer;
-}
-
-li:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px);
-}
-
-.li-single:hover{
-  transform: translateY(0px);
-}
-
-/* <span> */
-  
   /* <div> */
-    .div-container {
+.div-container {
   position: relative;
   max-width: 1000px; /* Adjust as needed */
   margin: 13px auto;
@@ -391,17 +358,6 @@ li:hover {
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Make icon inline with text */
-.naver {
-  background-color: #f0fff4; /* Light green background */
-  border-left: 5px solid #00b300; /* Accent border on the left (darker green) */
-  cursor: pointer;
-}
-
-.naver-header::before {
-  content: "📗"; /* Icon to style it */
 }
 
 </style>

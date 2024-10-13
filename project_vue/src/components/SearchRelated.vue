@@ -9,6 +9,7 @@
                 v-for="element in RelatedData"
                 :key="element.kr"
                 @click="showPanel(element)"
+                class="searchresult-li"
               >
                 <span 
                   v-if="checkbox_active.includes('급수')" 
@@ -339,31 +340,6 @@
   </style>
   
 <style scoped>
-
-h2, h3 {
-  margin: 0.5rem 0;
-}
-
-/* <li> */
-li {
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.3s;
-  text-align: center;
-  cursor: pointer;
-}
-
-li:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px);
-}
-
-.li-single:hover{
-  transform: translateY(0px);
-}
-
 /* <div> */
   .div-container {
   position: relative;

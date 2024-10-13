@@ -1,9 +1,9 @@
 <template>
   <div v-if="show_searchresult==true">
     <!-- Filter Dropdown -->
-    <div class="option-container">
+    <div class="optionbar-wrapper">
       <!-- Checkbox -->
-      <div class="option-row">
+      <div class="optionbar-container">
         <div class="checkbox-group">
           <label v-for="option in checkbox_options" :key="option.value" class="checkbox-label">
             <input
@@ -24,7 +24,7 @@
           </label>
         </div>
       </div>
-      <div class="option-row">
+      <div class="optionbar-container">
       <!-- options -->
       <div class="dropdown-group">
         <div class="dropdown-container">
@@ -89,7 +89,7 @@
       </div> 
   
       <!-- Sortby Dropdown -->
-      <div @click="handleClickOutside" class="dropdown-container right">
+      <div @click="handleClickOutside" class="dropdown-container">
         <div 
           @click.stop="toggle_dropdown_sortby" 
           class="dropdown"
@@ -242,16 +242,9 @@
 </script>
 <style>
   @import "../styles/checkbox.css";
-  @import "../styles/searchbar.css";
-  @import "../styles/searchresult.css";
   @import "../styles/toggle.css";
   @import "../styles/dropdown.css";
-  @import "../styles/shape-table.css";
-  @import "../styles/info-table.css";
-  @import "../styles/related-table.css";
-  @import "../styles/exposition.css";
-  @import "../styles/popup.css";
-  @import "../styles/flipcard.css";
+  @import "../styles/optionbar.css";
 </style>
   
 <style lang="css" scoped>
@@ -263,23 +256,4 @@
   background-color: #f7f9fc; /* Light background for contrast */
 }
 
-.option-container {
-  max-width: 800px; /* Limit the width of the container */
-  margin: auto; /* Center the container */
-  padding: 20px;
-  background-color: #fff; /* White background for the dropdown container */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  padding-top: 5px;
-  padding-bottom: 0px;
-}
-.option-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-.right {
-  margin-left: 5%;
-}
 </style>

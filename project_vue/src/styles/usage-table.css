@@ -1,0 +1,20 @@
+.usage-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9rem; /* Smaller font size */
+    table-layout: auto; /* Allow columns to adjust based on content */
+  }
+  
+  .usage-table td {
+    border: 1px solid #ddd;
+    padding: 6px 10px; /* Adjusted padding for better sizing */
+  }
+  
+  .usage-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .usage-table tr:hover {
+    background-color: #f1f1f1;
+  }
