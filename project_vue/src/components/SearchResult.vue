@@ -6,7 +6,7 @@
 
           <ul class="searchresult-ul">
             <li
-            v-for="element in SortLogic"
+            v-for="element in paginatedItems"
             :key="element.id"
             @click="showPanel(element)"
             class="searchresult-li"
@@ -54,24 +54,39 @@
               </span>
             </li>
           </ul> 
-        </div>
+      </div>
 
-        <!-- Popup Panel -->
-        <div v-if="clicked_item" class="popup-container">
-          <p class="div-popup-level">{{clicked_item["읽기"]}} {{clicked_item["쓰기"]}}</p>
-          <button class="popup-close" @click="closePanel">&times;</button>
-          <div style="position: absolute;font-size: medium;top: 30%;left: 10%;">
-            <p style="font-size: 12px">부수<br></p>
-            <p class="popup-letter" @click="StringHandler(clicked_item.部首)">{{ clicked_item.部首}}</p>
-          </div>
-          <div style="position: absolute;font-size: medium;top: 30%;left: 80%;" >
-            <p style="font-size: 12px" v-if="clicked_item.聲部">성부<br></p>
-            <p class="popup-letter" @click="StringHandler(clicked_item.聲部)">{{ clicked_item.聲部}}</p>
-          </div>
-          <div style="position:relative;font-size: medium;top: 50%;left: 25%; width: 50%;height: 100%;">
-            <h1 @click="SelectClose(clicked_item)" class="popup-word">{{ clicked_item.kr }}</h1>
-          </div>
+      <!-- Popup Panel -->
+      <div v-if="clicked_item" class="popup-container">
+        <p class="div-popup-level">{{clicked_item["읽기"]}} {{clicked_item["쓰기"]}}</p>
+        <button class="popup-close" @click="closePanel">&times;</button>
+        <div style="position: absolute;font-size: medium;top: 30%;left: 10%;">
+          <p style="font-size: 12px">부수<br></p>
+          <p class="popup-letter" @click="StringHandler(clicked_item.部首)">{{ clicked_item.部首}}</p>
         </div>
+        <div style="position: absolute;font-size: medium;top: 30%;left: 80%;" >
+          <p style="font-size: 12px" v-if="clicked_item.聲部">성부<br></p>
+          <p class="popup-letter" @click="StringHandler(clicked_item.聲部)">{{ clicked_item.聲部}}</p>
+        </div>
+        <div style="position:relative;font-size: medium;top: 50%;left: 25%; width: 50%;height: 100%;">
+          <h1 @click="SelectClose(clicked_item)" class="popup-word">{{ clicked_item.kr }}</h1>
+        </div>
+      </div>
+
+
+      <div 
+        class="pagination"
+      >
+        <button 
+          v-for="page in page_options"
+          :key="page"
+          :class="{ active: page === currentPage }"
+          @click="page !== '...' && page !=='..'? (currentPage = page, handlePageClick(page)) : null&&handlePageClick"
+          @mouseover="page !== '...' && page !=='..'"
+        >
+          {{ page }}
+        </button>
+      </div>
     </div>
   </template>
   
@@ -136,6 +151,10 @@
         selected_item: {},
         selected_string: '',
         clicked_item: '',
+        //paegs
+        currentPage: 1,    // Track the current page
+        itemsPerPage: 25, // Number of items per page
+        page_options:[],
       };
     },
   
@@ -145,11 +164,20 @@
         if (newVal.length === 0) {
           this.clicked_item = '';
         }
+      },
+      searched_item(newVal, oldVal) {
+        // Trigger handlePageClick() when searched_item (prop) is updated
+        if (newVal !== oldVal) {
+          this.handlePageClick();
+        }
       }
     },
   
   
     methods:{
+      mounted() {
+        document.addEventListener('click', this.handleClickOutside);
+      },  
       toggle_dropdown_readlev() {
         this.filter_open_readlev = !this.filter_open_readlev;
       },
@@ -170,14 +198,6 @@
           this.filter_open_chinalev = false;
         }
       }, 
-      mounted() {
-      // Add event listener to detect clicks outside
-      document.addEventListener('click', this.handleClickOutside);
-      },
-      beforeDestroy() {
-        // Remove event listener when component is destroyed
-        document.removeEventListener('click', this.handleClickOutside);
-      },
       sortResults() {
         this.SortLogic; // Just to ensure it recalculates based on selected sort
       },
@@ -226,8 +246,8 @@
       },
       sortMethod(searchResults) {
         if (!searchResults || searchResults.length === 0) {
-            return []; // Return an empty array if no results
-          }
+          return []; // Return an empty array if no results
+        }
           
         const criterium = this.sortby_options.find(option => option.text === this.sortby_active).value;
           
@@ -272,6 +292,31 @@
           return aValue.localeCompare(bValue);
         });
       },
+      handlePageClick(){
+        console.log('pages',this.page_options)
+        const page=this.currentPage
+        const pages = [];
+
+        const totalPages = this.totalPages;
+        if (totalPages <= 5) {
+          // If there are 5 or fewer pages, show them all
+          for (let i = 1; i <= totalPages; i++) {
+            pages.push(i);
+          }
+        } 
+        else {
+          // More than 5 pages
+          if (page <= 3) {
+            pages.push(1, 2, 3, 4, '..', totalPages-1,totalPages);
+          } else if (page >= totalPages - 2) {
+            pages.push(1, 2, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+          } else {
+            pages.push(1, '..', page - 1, page, page + 1, '...', totalPages);
+          }
+        }
+        this.page_options=pages
+
+      }
     },
     computed: {
       SearchLogic() {
@@ -329,16 +374,24 @@
         });
       },
       SortLogic() {
-        const searchResults = this.FilterLogic; // Assuming FilterLogic is already defined
-
-        // Filter the data
+        const searchResults = this.FilterLogic; 
         if (!searchResults || searchResults.length === 0) {
           return []; // Return an empty array if no results
         }
-
         // Call the sortLogic method to sort the filtered results
         return this.sortMethod(searchResults);
-      },  
+      },
+      totalPages() {
+        return Math.ceil(this.SortLogic.length / this.itemsPerPage);
+      },
+      // Return items for the current page
+      paginatedItems() {
+        const dataList=this.SortLogic
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.sortMethod(dataList).slice(start, end);
+      },
+
     }  
   };
 </script>
@@ -346,7 +399,8 @@
     @import "../styles/searchresult.css";
     @import "../styles/shape-table.css";
     @import "../styles/popup.css";
-  </style>
+    @import "../styles/pagination.css";
+    </style>
   
 <style scoped>
   /* <div> */
