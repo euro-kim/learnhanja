@@ -1,13 +1,13 @@
 <template>
     <div>
       <div :class="{'heading': true, 'folded-heading': user_input}">
-        <a :href="link" rel="noopener noreferrer" class="logo-link">
+        <router-link to="/" rel="noopener noreferrer" class="logo-link">
           <img 
             alt="LearnHanja" 
-            img src="/logo.png"
+            src="/logo.png"
             :class="{'logo': true, 'folded': user_input}" 
           >
-        </a>
+        </router-link>
       </div>
   
       <div class="div-search-wrapper">
@@ -42,7 +42,7 @@
     data() {
       return {
         //link
-        link: 'http://learnhanja.com',
+        //link: 'http://learnhanja.com',
         //Search 
         user_input: '', //user input
         searched_item: '',
