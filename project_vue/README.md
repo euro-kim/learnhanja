@@ -25,7 +25,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
 ## Description
-An open Hanja learning plat from for preparing for exams..
+An open Hanja learning plat from for preparing for exams.
 
 ## License
 This project is created as for academic purporses. The website does not own the provided hanja information, and if any copyright issues exist, please contact the creater.
